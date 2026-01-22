@@ -4,12 +4,14 @@ const Page = () => {
   return (
     <View style={styles.container}>
 
-      <Text style={styles.text}>Explore screen.</Text>
+      <Text style={styles.text}>Profile screen.</Text>
     </View>
   );
 }
 
 export default Page;
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
