@@ -1,39 +1,52 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { FontAwesome } from '@expo/vector-icons';
+import { Colors, Typography } from '../../constants/theme';
 
 const TabLayout = () => {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true, // show top header
-        tabBarActiveTintColor: "#007AFF", // active tab color
+        headerShown: false,
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.gray400,
+        tabBarStyle: {
+          backgroundColor: Colors.white,
+          borderTopColor: Colors.border,
+          paddingTop: 8,
+          paddingBottom: 8,
+          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: Typography.fontSize.xs,
+          fontWeight: Typography.fontWeight.medium,
+        },
       }}
     >
       <Tabs.Screen
-        name="index" // corresponds to (tabs)/index.tsx
+        name="index"
         options={{
-          title: "Home",
+          title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="home" color={color} size={size} />
+            <FontAwesome name="home" color={color} size={22} />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore" // corresponds to (tabs)/explore.tsx
+        name="explore"
         options={{
-          title: "Explore",
+          title: 'Explore',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="search" color={color} size={size} />
+            <FontAwesome name="search" color={color} size={20} />
           ),
         }}
       />
       <Tabs.Screen
-        name="profile" // corresponds to (tabs)/profile.tsx
+        name="profile"
         options={{
-          title: "Profile",
+          title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="user" color={color} size={size} />
+            <FontAwesome name="user" color={color} size={20} />
           ),
         }}
       />
