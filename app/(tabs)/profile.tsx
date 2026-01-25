@@ -1,44 +1,46 @@
-import React from 'react';
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Button, Card } from '../components/ui';
-import { useAuth } from '../../context/AuthContext';
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
+import { useAuth } from "../../context/AuthContext";
+import { Button, Card } from "../components/ui";
 
 const ProfilePage = () => {
   const router = useRouter();
   const { isAuthenticated, user, vendor, isVendor, logout } = useAuth();
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/(tabs)');
-          },
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: () => {
+          logout();
+          router.replace("/(tabs)");
         },
-      ]
-    );
+      },
+    ]);
   };
 
   if (!isAuthenticated) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
         <View style={styles.notLoggedIn}>
           <View style={styles.iconContainer}>
             <FontAwesome name="user-circle" size={80} color={Colors.gray300} />
@@ -50,13 +52,13 @@ const ProfilePage = () => {
           <View style={styles.authButtons}>
             <Button
               title="Sign In"
-              onPress={() => router.push('/auth/user-login')}
+              onPress={() => router.push("/auth/user-login")}
               fullWidth
               size="lg"
             />
             <Button
               title="Create Account"
-              onPress={() => router.push('/auth/user-signup')}
+              onPress={() => router.push("/auth/user-signup")}
               variant="outline"
               fullWidth
               size="lg"
@@ -68,7 +70,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -80,7 +82,7 @@ const ProfilePage = () => {
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               <FontAwesome
-                name={isVendor ? 'briefcase' : 'user'}
+                name={isVendor ? "briefcase" : "user"}
                 size={40}
                 color={Colors.white}
               />
@@ -93,12 +95,14 @@ const ProfilePage = () => {
           <Text style={styles.userEmail}>{user?.email}</Text>
           <View style={styles.roleBadge}>
             <FontAwesome
-              name={isVendor ? 'star' : 'user'}
+              name={isVendor ? "star" : "user"}
               size={12}
               color={isVendor ? Colors.secondary : Colors.primary}
             />
-            <Text style={[styles.roleText, isVendor && { color: Colors.secondary }]}>
-              {isVendor ? 'Vendor' : 'Client'}
+            <Text
+              style={[styles.roleText, isVendor && { color: Colors.secondary }]}
+            >
+              {isVendor ? "Vendor" : "Client"}
             </Text>
           </View>
         </View>
@@ -117,17 +121,27 @@ const ProfilePage = () => {
             </View>
             <View style={styles.infoRow}>
               <View style={styles.infoItem}>
-                <FontAwesome name="map-marker" size={16} color={Colors.gray400} />
+                <FontAwesome
+                  name="map-marker"
+                  size={16}
+                  color={Colors.gray400}
+                />
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Location</Text>
-                  <Text style={styles.infoValue}>{vendor.city}, {vendor.nation}</Text>
+                  <Text style={styles.infoValue}>
+                    {vendor.city}, {vendor.nation}
+                  </Text>
                 </View>
               </View>
             </View>
             {vendor.theme && (
               <View style={styles.infoRow}>
                 <View style={styles.infoItem}>
-                  <FontAwesome name="paint-brush" size={16} color={Colors.gray400} />
+                  <FontAwesome
+                    name="paint-brush"
+                    size={16}
+                    color={Colors.gray400}
+                  />
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Theme Specialty</Text>
                     <Text style={styles.infoValue}>{vendor.theme}</Text>
@@ -137,7 +151,11 @@ const ProfilePage = () => {
             )}
             <View style={styles.infoRow}>
               <View style={styles.infoItem}>
-                <FontAwesome name="file-text" size={16} color={Colors.gray400} />
+                <FontAwesome
+                  name="file-text"
+                  size={16}
+                  color={Colors.gray400}
+                />
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Description</Text>
                   <Text style={styles.infoValue}>{vendor.description}</Text>
@@ -150,13 +168,17 @@ const ProfilePage = () => {
         {/* Menu Items */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIcon}>
               <FontAwesome name="user" size={18} color={Colors.primary} />
             </View>
             <Text style={styles.menuText}>Edit Profile</Text>
-            <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+            <FontAwesome
+              name="chevron-right"
+              size={14}
+              color={Colors.gray400}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
@@ -164,7 +186,11 @@ const ProfilePage = () => {
               <FontAwesome name="lock" size={18} color={Colors.primary} />
             </View>
             <Text style={styles.menuText}>Change Password</Text>
-            <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+            <FontAwesome
+              name="chevron-right"
+              size={14}
+              color={Colors.gray400}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
@@ -172,7 +198,11 @@ const ProfilePage = () => {
               <FontAwesome name="bell" size={18} color={Colors.primary} />
             </View>
             <Text style={styles.menuText}>Notifications</Text>
-            <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+            <FontAwesome
+              name="chevron-right"
+              size={14}
+              color={Colors.gray400}
+            />
           </TouchableOpacity>
 
           {isVendor && (
@@ -181,20 +211,32 @@ const ProfilePage = () => {
                 <FontAwesome name="cog" size={18} color={Colors.primary} />
               </View>
               <Text style={styles.menuText}>Business Settings</Text>
-              <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+              <FontAwesome
+                name="chevron-right"
+                size={14}
+                color={Colors.gray400}
+              />
             </TouchableOpacity>
           )}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
-          
+
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIcon}>
-              <FontAwesome name="question-circle" size={18} color={Colors.info} />
+              <FontAwesome
+                name="question-circle"
+                size={18}
+                color={Colors.info}
+              />
             </View>
             <Text style={styles.menuText}>Help Center</Text>
-            <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+            <FontAwesome
+              name="chevron-right"
+              size={14}
+              color={Colors.gray400}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
@@ -202,7 +244,11 @@ const ProfilePage = () => {
               <FontAwesome name="file-text-o" size={18} color={Colors.info} />
             </View>
             <Text style={styles.menuText}>Terms & Conditions</Text>
-            <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+            <FontAwesome
+              name="chevron-right"
+              size={14}
+              color={Colors.gray400}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
@@ -210,7 +256,11 @@ const ProfilePage = () => {
               <FontAwesome name="shield" size={18} color={Colors.info} />
             </View>
             <Text style={styles.menuText}>Privacy Policy</Text>
-            <FontAwesome name="chevron-right" size={14} color={Colors.gray400} />
+            <FontAwesome
+              name="chevron-right"
+              size={14}
+              color={Colors.gray400}
+            />
           </TouchableOpacity>
         </View>
 
@@ -221,7 +271,9 @@ const ProfilePage = () => {
             onPress={handleLogout}
             variant="danger"
             fullWidth
-            icon={<FontAwesome name="sign-out" size={18} color={Colors.white} />}
+            icon={
+              <FontAwesome name="sign-out" size={18} color={Colors.white} />
+            }
           />
         </View>
 
@@ -241,15 +293,15 @@ const styles = StyleSheet.create({
   },
   notLoggedIn: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: Spacing.xl,
   },
   iconContainer: {
     marginBottom: Spacing.lg,
   },
   notLoggedInTitle: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
@@ -257,11 +309,11 @@ const styles = StyleSheet.create({
   notLoggedInText: {
     fontSize: Typography.fontSize.base,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.xl,
   },
   authButtons: {
-    width: '100%',
+    width: "100%",
     gap: Spacing.md,
   },
   header: {
@@ -269,12 +321,12 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.base,
   },
   headerTitle: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
   },
   profileCard: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: Spacing.xl,
     paddingHorizontal: Spacing.lg,
     backgroundColor: Colors.white,
@@ -283,7 +335,7 @@ const styles = StyleSheet.create({
     ...Shadows.md,
   },
   avatarContainer: {
-    position: 'relative',
+    position: "relative",
     marginBottom: Spacing.base,
   },
   avatar: {
@@ -291,19 +343,19 @@ const styles = StyleSheet.create({
     height: 96,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   editAvatarButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
     width: 28,
     height: 28,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 2,
     borderColor: Colors.white,
   },
@@ -319,12 +371,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   roleBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
-    backgroundColor: Colors.primary + '15',
+    backgroundColor: Colors.primary + "15",
     borderRadius: BorderRadius.full,
   },
   roleText: {
@@ -346,8 +398,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   infoItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: Spacing.md,
   },
   infoContent: {
@@ -363,8 +415,8 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.base,
     backgroundColor: Colors.white,
@@ -376,9 +428,9 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: BorderRadius.base,
-    backgroundColor: Colors.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: Spacing.md,
   },
   menuText: {
@@ -391,10 +443,10 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.lg,
   },
   appVersion: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: Typography.fontSize.xs,
     color: Colors.textTertiary,
     marginTop: Spacing.lg,
-    marginBottom: Spacing['2xl'],
+    marginBottom: Spacing["2xl"],
   },
 });

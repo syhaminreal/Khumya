@@ -1,61 +1,67 @@
-import React, { useState } from 'react';
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Button, Input } from '../components/ui';
-import { useAuth } from '../../context/AuthContext';
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
+import { useAuth } from "../../context/AuthContext";
+import { Button, Input } from "../components/ui";
 
 const UserSignup = () => {
   const router = useRouter();
   const { signup, loading } = useAuth();
-  
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = "Name is required";
     }
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     if (!agreedToTerms) {
-      newErrors.terms = 'You must agree to the terms and conditions';
+      newErrors.terms = "You must agree to the terms and conditions";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -64,23 +70,27 @@ const UserSignup = () => {
     if (!validateForm()) return;
 
     const success = await signup(
-      { email: formData.email, name: formData.name, password: formData.password },
-      false
+      {
+        email: formData.email,
+        name: formData.name,
+        password: formData.password,
+      },
+      false,
     );
-    
+
     if (success) {
-      Alert.alert('Success', 'Account created successfully!', [
-        { text: 'OK', onPress: () => router.replace('/(tabs)') }
+      Alert.alert("Success", "Account created successfully!", [
+        { text: "OK", onPress: () => router.replace("/(tabs)") },
       ]);
     } else {
-      Alert.alert('Signup Failed', 'Please try again later.');
+      Alert.alert("Signup Failed", "Please try again later.");
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView
@@ -93,7 +103,11 @@ const UserSignup = () => {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <FontAwesome name="arrow-left" size={20} color={Colors.textPrimary} />
+            <FontAwesome
+              name="arrow-left"
+              size={20}
+              color={Colors.textPrimary}
+            />
           </TouchableOpacity>
 
           {/* Header */}
@@ -116,7 +130,9 @@ const UserSignup = () => {
               value={formData.name}
               onChangeText={(text) => setFormData({ ...formData, name: text })}
               error={errors.name}
-              leftIcon={<FontAwesome name="user" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="user" size={18} color={Colors.gray400} />
+              }
               required
             />
 
@@ -128,7 +144,9 @@ const UserSignup = () => {
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
               error={errors.email}
-              leftIcon={<FontAwesome name="envelope" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="envelope" size={18} color={Colors.gray400} />
+              }
               required
             />
 
@@ -137,10 +155,14 @@ const UserSignup = () => {
               placeholder="Create a password"
               isPassword
               value={formData.password}
-              onChangeText={(text) => setFormData({ ...formData, password: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, password: text })
+              }
               error={errors.password}
               hint="Must be at least 6 characters"
-              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="lock" size={20} color={Colors.gray400} />
+              }
               required
             />
 
@@ -149,9 +171,13 @@ const UserSignup = () => {
               placeholder="Confirm your password"
               isPassword
               value={formData.confirmPassword}
-              onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, confirmPassword: text })
+              }
               error={errors.confirmPassword}
-              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="lock" size={20} color={Colors.gray400} />
+              }
               required
             />
 
@@ -160,19 +186,25 @@ const UserSignup = () => {
               style={styles.termsContainer}
               onPress={() => setAgreedToTerms(!agreedToTerms)}
             >
-              <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  agreedToTerms && styles.checkboxChecked,
+                ]}
+              >
                 {agreedToTerms && (
                   <FontAwesome name="check" size={12} color={Colors.white} />
                 )}
               </View>
               <Text style={styles.termsText}>
-                I agree to the{' '}
-                <Text style={styles.termsLink}>Terms of Service</Text>
-                {' '}and{' '}
+                I agree to the{" "}
+                <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
                 <Text style={styles.termsLink}>Privacy Policy</Text>
               </Text>
             </TouchableOpacity>
-            {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
+            {errors.terms && (
+              <Text style={styles.errorText}>{errors.terms}</Text>
+            )}
 
             <Button
               title="Create Account"
@@ -207,7 +239,7 @@ const UserSignup = () => {
           {/* Login Link */}
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/auth/user-login')}>
+            <TouchableOpacity onPress={() => router.push("/auth/user-login")}>
               <Text style={styles.loginLink}>Sign In</Text>
             </TouchableOpacity>
           </View>
@@ -215,10 +247,11 @@ const UserSignup = () => {
           {/* Vendor Signup Link */}
           <TouchableOpacity
             style={styles.vendorLink}
-            onPress={() => router.push('/auth/vendor-signup')}
+            onPress={() => router.push("/auth/vendor-signup")}
           >
             <Text style={styles.vendorLinkText}>
-              Want to offer services? <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
+              Want to offer services?{" "}
+              <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -238,19 +271,19 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing['2xl'],
+    paddingBottom: Spacing["2xl"],
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.gray100,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: Spacing.md,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: Spacing.xl,
     marginBottom: Spacing.xl,
   },
@@ -258,13 +291,13 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing.base,
   },
   title: {
-    fontSize: Typography.fontSize['3xl'],
+    fontSize: Typography.fontSize["3xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
@@ -272,14 +305,14 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: Typography.fontSize.base,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   form: {
     marginBottom: Spacing.lg,
   },
   termsContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     marginTop: Spacing.sm,
   },
   checkbox: {
@@ -288,8 +321,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
     borderWidth: 1.5,
     borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: Spacing.sm,
     marginTop: 2,
   },
@@ -314,8 +347,8 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.xl,
   },
   divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: Spacing.lg,
   },
   dividerLine: {
@@ -329,8 +362,8 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
   },
   socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: Spacing.base,
     marginBottom: Spacing.xl,
   },
@@ -340,14 +373,14 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: Colors.white,
     ...Shadows.sm,
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: Spacing.lg,
   },
   loginText: {
@@ -360,9 +393,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semiBold,
   },
   vendorLink: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.secondary + '10',
+    backgroundColor: Colors.secondary + "10",
     borderRadius: BorderRadius.base,
   },
   vendorLinkText: {

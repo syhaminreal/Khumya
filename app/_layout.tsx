@@ -1,7 +1,8 @@
-import { Stack } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider } from '../context/AuthContext';
-import { Colors } from '../constants/theme';
+import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Colors } from "../constants/theme";
+import { AuthProvider } from "../context/AuthContext";
+import "./global.css";
 
 export default function RootLayout() {
   return (
@@ -10,7 +11,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            animation: 'slide_from_right',
+            animation: "slide_from_right",
             contentStyle: { backgroundColor: Colors.background },
           }}
         >

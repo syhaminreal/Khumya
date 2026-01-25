@@ -1,101 +1,108 @@
-import React, { useState } from 'react';
+import { FontAwesome } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   FlatList,
-} from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Card, Select } from '../components/ui';
-import { MOCK_CATEGORIES, CITIES } from '../../types/mockData';
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  BorderRadius,
+  Colors,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
+import { CITIES, MOCK_CATEGORIES } from "../../types/mockData";
+import { Card, Select } from "../components/ui";
 
 // Mock vendor data for display
 const MOCK_VENDORS = [
   {
     id: 1,
-    vendorName: 'Royal Photography',
-    category: 'Photography',
-    city: 'Kathmandu',
+    vendorName: "Royal Photography",
+    category: "Photography",
+    city: "Kathmandu",
     rating: 4.9,
     reviews: 128,
-    description: 'Professional wedding and event photography services',
-    priceRange: '$$$',
+    description: "Professional wedding and event photography services",
+    priceRange: "$$$",
   },
   {
     id: 2,
-    vendorName: 'Divine Catering',
-    category: 'Catering',
-    city: 'Pokhara',
+    vendorName: "Divine Catering",
+    category: "Catering",
+    city: "Pokhara",
     rating: 4.8,
     reviews: 95,
-    description: 'Authentic Nepali and international cuisine for all events',
-    priceRange: '$$',
+    description: "Authentic Nepali and international cuisine for all events",
+    priceRange: "$$",
   },
   {
     id: 3,
-    vendorName: 'Elegant Decor',
-    category: 'Decoration',
-    city: 'Lalitpur',
+    vendorName: "Elegant Decor",
+    category: "Decoration",
+    city: "Lalitpur",
     rating: 4.7,
     reviews: 76,
-    description: 'Transform your venue into a magical space',
-    priceRange: '$$',
+    description: "Transform your venue into a magical space",
+    priceRange: "$$",
   },
   {
     id: 4,
-    vendorName: 'Grand Venue Hall',
-    category: 'Venue',
-    city: 'Kathmandu',
+    vendorName: "Grand Venue Hall",
+    category: "Venue",
+    city: "Kathmandu",
     rating: 4.9,
     reviews: 203,
-    description: 'Premium event venue with modern amenities',
-    priceRange: '$$$',
+    description: "Premium event venue with modern amenities",
+    priceRange: "$$$",
   },
   {
     id: 5,
-    vendorName: 'Beat Masters DJ',
-    category: 'Music & Entertainment',
-    city: 'Bhaktapur',
+    vendorName: "Beat Masters DJ",
+    category: "Music & Entertainment",
+    city: "Bhaktapur",
     rating: 4.6,
     reviews: 54,
-    description: 'Professional DJ and live music for your events',
-    priceRange: '$$',
+    description: "Professional DJ and live music for your events",
+    priceRange: "$$",
   },
 ];
 
 const ExplorePage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
   const categoryIcons: Record<string, string> = {
-    'Photography': 'camera',
-    'Catering': 'cutlery',
-    'Decoration': 'paint-brush',
-    'Venue': 'building',
-    'Music & Entertainment': 'music',
-    'Event Planning': 'calendar',
+    Photography: "camera",
+    Catering: "cutlery",
+    Decoration: "paint-brush",
+    Venue: "building",
+    "Music & Entertainment": "music",
+    "Event Planning": "calendar",
   };
 
   const filteredVendors = MOCK_VENDORS.filter((vendor) => {
-    const matchesSearch = vendor.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
+      vendor.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       vendor.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || vendor.category === selectedCategory;
+    const matchesCategory =
+      !selectedCategory || vendor.category === selectedCategory;
     const matchesCity = !selectedCity || vendor.city === selectedCity;
     return matchesSearch && matchesCategory && matchesCity;
   });
 
-  const renderVendorCard = ({ item }: { item: typeof MOCK_VENDORS[0] }) => (
+  const renderVendorCard = ({ item }: { item: (typeof MOCK_VENDORS)[0] }) => (
     <Card style={styles.vendorCard} noPadding>
       <View style={styles.vendorImageContainer}>
         <View style={styles.vendorImagePlaceholder}>
           <FontAwesome
-            name={categoryIcons[item.category] as any || 'star'}
+            name={(categoryIcons[item.category] as any) || "star"}
             size={40}
             color={Colors.gray300}
           />
@@ -134,11 +141,13 @@ const ExplorePage = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Explore Vendors</Text>
-        <Text style={styles.headerSubtitle}>Find the perfect vendor for your event</Text>
+        <Text style={styles.headerSubtitle}>
+          Find the perfect vendor for your event
+        </Text>
       </View>
 
       {/* Search Bar */}
@@ -153,8 +162,12 @@ const ExplorePage = () => {
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <FontAwesome name="times-circle" size={18} color={Colors.gray400} />
+            <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <FontAwesome
+                name="times-circle"
+                size={18}
+                color={Colors.gray400}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -168,12 +181,16 @@ const ExplorePage = () => {
               styles.filterChip,
               !selectedCategory && styles.filterChipActive,
             ]}
-            onPress={() => setSelectedCategory('')}
+            onPress={() => setSelectedCategory("")}
           >
-            <Text style={[
-              styles.filterChipText,
-              !selectedCategory && styles.filterChipTextActive,
-            ]}>All</Text>
+            <Text
+              style={[
+                styles.filterChipText,
+                !selectedCategory && styles.filterChipTextActive,
+              ]}
+            >
+              All
+            </Text>
           </TouchableOpacity>
           {MOCK_CATEGORIES.map((category) => (
             <TouchableOpacity
@@ -182,20 +199,31 @@ const ExplorePage = () => {
                 styles.filterChip,
                 selectedCategory === category.title && styles.filterChipActive,
               ]}
-              onPress={() => setSelectedCategory(
-                selectedCategory === category.title ? '' : category.title
-              )}
+              onPress={() =>
+                setSelectedCategory(
+                  selectedCategory === category.title ? "" : category.title,
+                )
+              }
             >
               <FontAwesome
-                name={categoryIcons[category.title] as any || 'star'}
+                name={(categoryIcons[category.title] as any) || "star"}
                 size={12}
-                color={selectedCategory === category.title ? Colors.white : Colors.textSecondary}
+                color={
+                  selectedCategory === category.title
+                    ? Colors.white
+                    : Colors.textSecondary
+                }
                 style={{ marginRight: 6 }}
               />
-              <Text style={[
-                styles.filterChipText,
-                selectedCategory === category.title && styles.filterChipTextActive,
-              ]}>{category.title}</Text>
+              <Text
+                style={[
+                  styles.filterChipText,
+                  selectedCategory === category.title &&
+                    styles.filterChipTextActive,
+                ]}
+              >
+                {category.title}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -206,7 +234,7 @@ const ExplorePage = () => {
         <Select
           placeholder="All Cities"
           options={[
-            { label: 'All Cities', value: '' },
+            { label: "All Cities", value: "" },
             ...CITIES.map((c) => ({ label: c, value: c })),
           ]}
           value={selectedCity}
@@ -217,7 +245,9 @@ const ExplorePage = () => {
 
       {/* Results */}
       <View style={styles.resultsHeader}>
-        <Text style={styles.resultsCount}>{filteredVendors.length} vendors found</Text>
+        <Text style={styles.resultsCount}>
+          {filteredVendors.length} vendors found
+        </Text>
         <TouchableOpacity style={styles.sortButton}>
           <FontAwesome name="sort" size={14} color={Colors.textSecondary} />
           <Text style={styles.sortText}>Sort</Text>
@@ -258,7 +288,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   headerTitle: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
   },
@@ -272,8 +302,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.gray100,
     borderRadius: BorderRadius.base,
     paddingHorizontal: Spacing.base,
@@ -290,8 +320,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     backgroundColor: Colors.gray100,
@@ -314,9 +344,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   resultsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
   },
@@ -325,8 +355,8 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   sortText: {
@@ -339,20 +369,20 @@ const styles = StyleSheet.create({
   },
   vendorCard: {
     marginBottom: Spacing.base,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   vendorImageContainer: {
     height: 140,
     backgroundColor: Colors.gray100,
-    position: 'relative',
+    position: "relative",
   },
   vendorImagePlaceholder: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   priceTag: {
-    position: 'absolute',
+    position: "absolute",
     top: Spacing.sm,
     left: Spacing.sm,
     backgroundColor: Colors.white,
@@ -369,9 +399,9 @@ const styles = StyleSheet.create({
     padding: Spacing.base,
   },
   vendorHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: Spacing.sm,
   },
   vendorName: {
@@ -381,8 +411,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   ratingText: {
@@ -395,13 +425,13 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
   },
   vendorMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.md,
     marginBottom: Spacing.sm,
   },
   categoryBadge: {
-    backgroundColor: Colors.primary + '15',
+    backgroundColor: Colors.primary + "15",
     paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
     borderRadius: BorderRadius.sm,
@@ -412,8 +442,8 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.medium,
   },
   locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   locationText: {
@@ -427,9 +457,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   viewButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: Spacing.sm,
     paddingVertical: Spacing.sm,
     borderTopWidth: 1,
@@ -442,9 +472,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.medium,
   },
   emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing['3xl'],
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing["3xl"],
   },
   emptyStateTitle: {
     fontSize: Typography.fontSize.lg,

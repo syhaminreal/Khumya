@@ -1,63 +1,74 @@
-import React, { useState } from 'react';
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Button, Input, Select, StepIndicator, Card } from '../components/ui';
-import { useAuth } from '../../context/AuthContext';
-import { MOCK_CATEGORIES, NATIONS, CITIES, CULTURES, THEMES } from '../../types/mockData';
-import { Category, Question, Vendor } from '../../types';
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  BorderRadius,
+  Colors,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
+import { useAuth } from "../../context/AuthContext";
+import { Question, Vendor } from "../../types";
+import {
+  CITIES,
+  CULTURES,
+  MOCK_CATEGORIES,
+  NATIONS,
+  THEMES,
+} from "../../types/mockData";
+import { Button, Card, Input, Select, StepIndicator } from "../components/ui";
 
-const STEPS = ['Account', 'Business', 'Location', 'Category', 'Complete'];
+const STEPS = ["Account", "Business", "Location", "Category", "Complete"];
 
 const VendorSignup = () => {
   const router = useRouter();
   const { signup, setVendorProfile, loading, user } = useAuth();
-  
+
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // Step 1: Account Info
   const [accountData, setAccountData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   // Step 2: Business Info
   const [businessData, setBusinessData] = useState({
-    vendorName: '',
-    description: '',
-    space: '',
+    vendorName: "",
+    description: "",
+    space: "",
   });
 
   // Step 3: Location Info
   const [locationData, setLocationData] = useState({
-    city: '',
-    nation: '',
-    culture: '',
-    theme: '',
+    city: "",
+    nation: "",
+    culture: "",
+    theme: "",
   });
 
   // Step 4: Category & Questions
   const [categoryData, setCategoryData] = useState({
-    selectedCategory: '',
+    selectedCategory: "",
     answers: {} as Record<string, string>,
   });
 
   const selectedCategoryObj = MOCK_CATEGORIES.find(
-    (c) => c.id.toString() === categoryData.selectedCategory
+    (c) => c.id.toString() === categoryData.selectedCategory,
   );
 
   const validateStep = (step: number): boolean => {
@@ -65,45 +76,46 @@ const VendorSignup = () => {
 
     switch (step) {
       case 0: // Account
-        if (!accountData.name.trim()) newErrors.name = 'Name is required';
+        if (!accountData.name.trim()) newErrors.name = "Name is required";
         if (!accountData.email) {
-          newErrors.email = 'Email is required';
+          newErrors.email = "Email is required";
         } else if (!/\S+@\S+\.\S+/.test(accountData.email)) {
-          newErrors.email = 'Please enter a valid email';
+          newErrors.email = "Please enter a valid email";
         }
         if (!accountData.password) {
-          newErrors.password = 'Password is required';
+          newErrors.password = "Password is required";
         } else if (accountData.password.length < 6) {
-          newErrors.password = 'Password must be at least 6 characters';
+          newErrors.password = "Password must be at least 6 characters";
         }
         if (accountData.password !== accountData.confirmPassword) {
-          newErrors.confirmPassword = 'Passwords do not match';
+          newErrors.confirmPassword = "Passwords do not match";
         }
         break;
 
       case 1: // Business
         if (!businessData.vendorName.trim()) {
-          newErrors.vendorName = 'Business name is required';
+          newErrors.vendorName = "Business name is required";
         }
         if (!businessData.description.trim()) {
-          newErrors.description = 'Description is required';
+          newErrors.description = "Description is required";
         }
         break;
 
       case 2: // Location
-        if (!locationData.nation) newErrors.nation = 'Please select your country';
-        if (!locationData.city) newErrors.city = 'Please select your city';
+        if (!locationData.nation)
+          newErrors.nation = "Please select your country";
+        if (!locationData.city) newErrors.city = "Please select your city";
         break;
 
       case 3: // Category
         if (!categoryData.selectedCategory) {
-          newErrors.category = 'Please select a category';
+          newErrors.category = "Please select a category";
         }
         // Validate all category questions are answered
         if (selectedCategoryObj) {
           selectedCategoryObj.question.forEach((q, idx) => {
             if (!categoryData.answers[`q_${idx}`]?.trim()) {
-              newErrors[`q_${idx}`] = 'This question is required';
+              newErrors[`q_${idx}`] = "This question is required";
             }
           });
         }
@@ -120,11 +132,15 @@ const VendorSignup = () => {
     if (currentStep === 0) {
       // Create user account first
       const success = await signup(
-        { email: accountData.email, name: accountData.name, password: accountData.password },
-        true
+        {
+          email: accountData.email,
+          name: accountData.name,
+          password: accountData.password,
+        },
+        true,
       );
       if (!success) {
-        Alert.alert('Error', 'Failed to create account. Please try again.');
+        Alert.alert("Error", "Failed to create account. Please try again.");
         return;
       }
     }
@@ -145,7 +161,7 @@ const VendorSignup = () => {
     const categoryAnswers: Question[] = selectedCategoryObj
       ? selectedCategoryObj.question.map((q, idx) => ({
           question: q.question,
-          answer: categoryData.answers[`q_${idx}`] || '',
+          answer: categoryData.answers[`q_${idx}`] || "",
         }))
       : [];
 
@@ -164,11 +180,11 @@ const VendorSignup = () => {
     };
 
     setVendorProfile(vendorProfile);
-    
+
     Alert.alert(
-      'Registration Complete! 🎉',
-      'Your vendor account has been created successfully.',
-      [{ text: 'Go to Dashboard', onPress: () => router.replace('/(tabs)') }]
+      "Registration Complete! 🎉",
+      "Your vendor account has been created successfully.",
+      [{ text: "Go to Dashboard", onPress: () => router.replace("/(tabs)") }],
     );
   };
 
@@ -187,9 +203,13 @@ const VendorSignup = () => {
               placeholder="Enter your full name"
               autoCapitalize="words"
               value={accountData.name}
-              onChangeText={(text) => setAccountData({ ...accountData, name: text })}
+              onChangeText={(text) =>
+                setAccountData({ ...accountData, name: text })
+              }
               error={errors.name}
-              leftIcon={<FontAwesome name="user" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="user" size={18} color={Colors.gray400} />
+              }
               required
             />
 
@@ -199,9 +219,13 @@ const VendorSignup = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               value={accountData.email}
-              onChangeText={(text) => setAccountData({ ...accountData, email: text })}
+              onChangeText={(text) =>
+                setAccountData({ ...accountData, email: text })
+              }
               error={errors.email}
-              leftIcon={<FontAwesome name="envelope" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="envelope" size={18} color={Colors.gray400} />
+              }
               required
             />
 
@@ -210,10 +234,14 @@ const VendorSignup = () => {
               placeholder="Create a strong password"
               isPassword
               value={accountData.password}
-              onChangeText={(text) => setAccountData({ ...accountData, password: text })}
+              onChangeText={(text) =>
+                setAccountData({ ...accountData, password: text })
+              }
               error={errors.password}
               hint="Must be at least 6 characters"
-              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="lock" size={20} color={Colors.gray400} />
+              }
               required
             />
 
@@ -222,9 +250,13 @@ const VendorSignup = () => {
               placeholder="Confirm your password"
               isPassword
               value={accountData.confirmPassword}
-              onChangeText={(text) => setAccountData({ ...accountData, confirmPassword: text })}
+              onChangeText={(text) =>
+                setAccountData({ ...accountData, confirmPassword: text })
+              }
               error={errors.confirmPassword}
-              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="lock" size={20} color={Colors.gray400} />
+              }
               required
             />
           </View>
@@ -242,9 +274,13 @@ const VendorSignup = () => {
               label="Business Name"
               placeholder="Enter your business name"
               value={businessData.vendorName}
-              onChangeText={(text) => setBusinessData({ ...businessData, vendorName: text })}
+              onChangeText={(text) =>
+                setBusinessData({ ...businessData, vendorName: text })
+              }
               error={errors.vendorName}
-              leftIcon={<FontAwesome name="building" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="building" size={18} color={Colors.gray400} />
+              }
               required
             />
 
@@ -254,9 +290,11 @@ const VendorSignup = () => {
               multiline
               numberOfLines={4}
               value={businessData.description}
-              onChangeText={(text) => setBusinessData({ ...businessData, description: text })}
+              onChangeText={(text) =>
+                setBusinessData({ ...businessData, description: text })
+              }
               error={errors.description}
-              inputStyle={{ height: 100, textAlignVertical: 'top' }}
+              inputStyle={{ height: 100, textAlignVertical: "top" }}
               required
             />
 
@@ -264,9 +302,13 @@ const VendorSignup = () => {
               label="Space / Capacity"
               placeholder="e.g., Studio, 100 guests, etc."
               value={businessData.space}
-              onChangeText={(text) => setBusinessData({ ...businessData, space: text })}
+              onChangeText={(text) =>
+                setBusinessData({ ...businessData, space: text })
+              }
               hint="Describe your workspace or capacity"
-              leftIcon={<FontAwesome name="expand" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="expand" size={18} color={Colors.gray400} />
+              }
             />
           </View>
         );
@@ -284,7 +326,9 @@ const VendorSignup = () => {
               placeholder="Select your country"
               options={NATIONS.map((n) => ({ label: n, value: n }))}
               value={locationData.nation}
-              onChange={(value) => setLocationData({ ...locationData, nation: value })}
+              onChange={(value) =>
+                setLocationData({ ...locationData, nation: value })
+              }
               error={errors.nation}
               required
             />
@@ -294,7 +338,9 @@ const VendorSignup = () => {
               placeholder="Select your city"
               options={CITIES.map((c) => ({ label: c, value: c }))}
               value={locationData.city}
-              onChange={(value) => setLocationData({ ...locationData, city: value })}
+              onChange={(value) =>
+                setLocationData({ ...locationData, city: value })
+              }
               error={errors.city}
               required
             />
@@ -304,7 +350,9 @@ const VendorSignup = () => {
               placeholder="Select cultural style (optional)"
               options={CULTURES.map((c) => ({ label: c, value: c }))}
               value={locationData.culture}
-              onChange={(value) => setLocationData({ ...locationData, culture: value })}
+              onChange={(value) =>
+                setLocationData({ ...locationData, culture: value })
+              }
             />
 
             <Select
@@ -312,7 +360,9 @@ const VendorSignup = () => {
               placeholder="Select your theme specialty (optional)"
               options={THEMES.map((t) => ({ label: t, value: t }))}
               value={locationData.theme}
-              onChange={(value) => setLocationData({ ...locationData, theme: value })}
+              onChange={(value) =>
+                setLocationData({ ...locationData, theme: value })
+              }
             />
           </View>
         );
@@ -328,7 +378,10 @@ const VendorSignup = () => {
             <Select
               label="Service Category"
               placeholder="Select your service category"
-              options={MOCK_CATEGORIES.map((c) => ({ label: c.title, value: c.id.toString() }))}
+              options={MOCK_CATEGORIES.map((c) => ({
+                label: c.title,
+                value: c.id.toString(),
+              }))}
               value={categoryData.selectedCategory}
               onChange={(value) => {
                 setCategoryData({ selectedCategory: value, answers: {} });
@@ -348,11 +401,14 @@ const VendorSignup = () => {
                     key={idx}
                     label={q.question}
                     placeholder="Enter your answer"
-                    value={categoryData.answers[`q_${idx}`] || ''}
+                    value={categoryData.answers[`q_${idx}`] || ""}
                     onChangeText={(text) =>
                       setCategoryData({
                         ...categoryData,
-                        answers: { ...categoryData.answers, [`q_${idx}`]: text },
+                        answers: {
+                          ...categoryData.answers,
+                          [`q_${idx}`]: text,
+                        },
                       })
                     }
                     error={errors[`q_${idx}`]}
@@ -368,7 +424,11 @@ const VendorSignup = () => {
         return (
           <View style={styles.stepContent}>
             <View style={styles.completeIcon}>
-              <FontAwesome name="check-circle" size={80} color={Colors.success} />
+              <FontAwesome
+                name="check-circle"
+                size={80}
+                color={Colors.success}
+              />
             </View>
             <Text style={styles.completeTitle}>You're All Set!</Text>
             <Text style={styles.completeDescription}>
@@ -378,15 +438,21 @@ const VendorSignup = () => {
             <Card title="Summary" style={{ marginTop: Spacing.lg }}>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Business Name</Text>
-                <Text style={styles.summaryValue}>{businessData.vendorName}</Text>
+                <Text style={styles.summaryValue}>
+                  {businessData.vendorName}
+                </Text>
               </View>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Location</Text>
-                <Text style={styles.summaryValue}>{locationData.city}, {locationData.nation}</Text>
+                <Text style={styles.summaryValue}>
+                  {locationData.city}, {locationData.nation}
+                </Text>
               </View>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Category</Text>
-                <Text style={styles.summaryValue}>{selectedCategoryObj?.title || 'N/A'}</Text>
+                <Text style={styles.summaryValue}>
+                  {selectedCategoryObj?.title || "N/A"}
+                </Text>
               </View>
               {locationData.theme && (
                 <View style={styles.summaryItem}>
@@ -404,9 +470,9 @@ const VendorSignup = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         {/* Header */}
@@ -415,7 +481,11 @@ const VendorSignup = () => {
             style={styles.backButton}
             onPress={currentStep === 0 ? () => router.back() : handleBack}
           >
-            <FontAwesome name="arrow-left" size={20} color={Colors.textPrimary} />
+            <FontAwesome
+              name="arrow-left"
+              size={20}
+              color={Colors.textPrimary}
+            />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Vendor Registration</Text>
           <View style={{ width: 40 }} />
@@ -445,7 +515,7 @@ const VendorSignup = () => {
           )}
           {currentStep < 4 ? (
             <Button
-              title={currentStep === 3 ? 'Review' : 'Continue'}
+              title={currentStep === 3 ? "Review" : "Continue"}
               onPress={handleNext}
               loading={loading && currentStep === 0}
               variant="secondary"
@@ -476,9 +546,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.md,
   },
@@ -487,8 +557,8 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.gray100,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontSize: Typography.fontSize.lg,
@@ -504,7 +574,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepTitle: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
@@ -515,7 +585,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   bottomButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.base,
     borderTopWidth: 1,
@@ -523,25 +593,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   completeIcon: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: Spacing.xl,
     marginBottom: Spacing.lg,
   },
   completeTitle: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.sm,
   },
   completeDescription: {
     fontSize: Typography.fontSize.base,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   summaryItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray100,

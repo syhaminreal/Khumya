@@ -1,46 +1,51 @@
-import React, { useState } from 'react';
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Button, Input } from '../components/ui';
-import { useAuth } from '../../context/AuthContext';
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  BorderRadius,
+  Colors,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
+import { useAuth } from "../../context/AuthContext";
+import { Button, Input } from "../components/ui";
 
 const VendorLogin = () => {
   const router = useRouter();
   const { login, loading } = useAuth();
-  
+
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -49,18 +54,21 @@ const VendorLogin = () => {
     if (!validateForm()) return;
 
     const success = await login(formData.email, formData.password, true);
-    
+
     if (success) {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     } else {
-      Alert.alert('Login Failed', 'Please check your credentials and try again.');
+      Alert.alert(
+        "Login Failed",
+        "Please check your credentials and try again.",
+      );
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView
@@ -73,18 +81,24 @@ const VendorLogin = () => {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <FontAwesome name="arrow-left" size={20} color={Colors.textPrimary} />
+            <FontAwesome
+              name="arrow-left"
+              size={20}
+              color={Colors.textPrimary}
+            />
           </TouchableOpacity>
 
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.iconContainer}>
-              <FontAwesome name="briefcase" size={32} color={Colors.secondary} />
+              <FontAwesome
+                name="briefcase"
+                size={32}
+                color={Colors.secondary}
+              />
             </View>
             <Text style={styles.title}>Vendor Portal</Text>
-            <Text style={styles.subtitle}>
-              Sign in to manage your services
-            </Text>
+            <Text style={styles.subtitle}>Sign in to manage your services</Text>
           </View>
 
           {/* Form */}
@@ -97,7 +111,9 @@ const VendorLogin = () => {
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
               error={errors.email}
-              leftIcon={<FontAwesome name="envelope" size={18} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="envelope" size={18} color={Colors.gray400} />
+              }
               required
             />
 
@@ -106,9 +122,13 @@ const VendorLogin = () => {
               placeholder="Enter your password"
               isPassword
               value={formData.password}
-              onChangeText={(text) => setFormData({ ...formData, password: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, password: text })
+              }
               error={errors.password}
-              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
+              leftIcon={
+                <FontAwesome name="lock" size={20} color={Colors.gray400} />
+              }
               required
             />
 
@@ -129,7 +149,9 @@ const VendorLogin = () => {
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have a vendor account? </Text>
-            <TouchableOpacity onPress={() => router.push('/auth/vendor-signup')}>
+            <TouchableOpacity
+              onPress={() => router.push("/auth/vendor-signup")}
+            >
               <Text style={styles.signupLink}>Register Now</Text>
             </TouchableOpacity>
           </View>
@@ -137,10 +159,11 @@ const VendorLogin = () => {
           {/* User Login Link */}
           <TouchableOpacity
             style={styles.userLink}
-            onPress={() => router.push('/auth/user-login')}
+            onPress={() => router.push("/auth/user-login")}
           >
             <Text style={styles.userLinkText}>
-              Not a vendor? <Text style={styles.userLinkBold}>Login as User</Text>
+              Not a vendor?{" "}
+              <Text style={styles.userLinkBold}>Login as User</Text>
             </Text>
           </TouchableOpacity>
 
@@ -148,16 +171,34 @@ const VendorLogin = () => {
           <View style={styles.benefitsSection}>
             <Text style={styles.benefitsTitle}>Why join as a Vendor?</Text>
             <View style={styles.benefitItem}>
-              <FontAwesome name="check-circle" size={16} color={Colors.success} />
-              <Text style={styles.benefitText}>Reach thousands of potential clients</Text>
+              <FontAwesome
+                name="check-circle"
+                size={16}
+                color={Colors.success}
+              />
+              <Text style={styles.benefitText}>
+                Reach thousands of potential clients
+              </Text>
             </View>
             <View style={styles.benefitItem}>
-              <FontAwesome name="check-circle" size={16} color={Colors.success} />
-              <Text style={styles.benefitText}>Easy booking management system</Text>
+              <FontAwesome
+                name="check-circle"
+                size={16}
+                color={Colors.success}
+              />
+              <Text style={styles.benefitText}>
+                Easy booking management system
+              </Text>
             </View>
             <View style={styles.benefitItem}>
-              <FontAwesome name="check-circle" size={16} color={Colors.success} />
-              <Text style={styles.benefitText}>Showcase your portfolio & services</Text>
+              <FontAwesome
+                name="check-circle"
+                size={16}
+                color={Colors.success}
+              />
+              <Text style={styles.benefitText}>
+                Showcase your portfolio & services
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -177,33 +218,33 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing['2xl'],
+    paddingBottom: Spacing["2xl"],
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.gray100,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: Spacing.md,
   },
   header: {
-    alignItems: 'center',
-    marginTop: Spacing['2xl'],
-    marginBottom: Spacing['2xl'],
+    alignItems: "center",
+    marginTop: Spacing["2xl"],
+    marginBottom: Spacing["2xl"],
   },
   iconContainer: {
     width: 72,
     height: 72,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.secondary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.secondary + "15",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing.base,
   },
   title: {
-    fontSize: Typography.fontSize['3xl'],
+    fontSize: Typography.fontSize["3xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
@@ -211,13 +252,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: Typography.fontSize.base,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   form: {
     marginBottom: Spacing.xl,
   },
   forgotPassword: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginBottom: Spacing.lg,
     marginTop: -Spacing.sm,
   },
@@ -227,8 +268,8 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.medium,
   },
   signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: Spacing.lg,
   },
   signupText: {
@@ -241,9 +282,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semiBold,
   },
   userLink: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.primary + '10',
+    backgroundColor: Colors.primary + "10",
     borderRadius: BorderRadius.base,
     marginBottom: Spacing.xl,
   },
@@ -267,8 +308,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.sm,
     marginBottom: Spacing.sm,
   },

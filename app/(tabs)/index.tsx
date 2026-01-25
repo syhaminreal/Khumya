@@ -1,57 +1,71 @@
-import React from 'react';
+import { FontAwesome } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Dimensions,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Button, Card } from '../components/ui';
-import { useAuth } from '../../context/AuthContext';
-import { MOCK_CATEGORIES } from '../../types/mockData';
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
+import { useAuth } from "../../context/AuthContext";
+import { MOCK_CATEGORIES } from "../../types/mockData";
+import { Button, Card } from "../components/ui";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const HomePage = () => {
   const router = useRouter();
   const { isAuthenticated, user, isVendor, logout } = useAuth();
 
   const categoryIcons: Record<string, string> = {
-    'Photography': 'camera',
-    'Catering': 'cutlery',
-    'Decoration': 'paint-brush',
-    'Venue': 'building',
-    'Music & Entertainment': 'music',
-    'Event Planning': 'calendar',
+    Photography: "camera",
+    Catering: "cutlery",
+    Decoration: "paint-brush",
+    Venue: "building",
+    "Music & Entertainment": "music",
+    "Event Planning": "calendar",
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>
-              {isAuthenticated ? `Hello, ${user?.name?.split(' ')[0]}!` : 'Welcome!'}
+              {isAuthenticated
+                ? `Hello, ${user?.name?.split(" ")[0]}!`
+                : "Welcome!"}
             </Text>
-            <Text style={styles.tagline}>Find perfect vendors for your events</Text>
+            <Text style={styles.tagline}>
+              Find perfect vendors for your events
+            </Text>
           </View>
           {isAuthenticated ? (
             <TouchableOpacity
               style={styles.profileButton}
-              onPress={() => router.push('/(tabs)/profile')}
+              onPress={() => router.push("/(tabs)/profile")}
             >
-              <FontAwesome name="user-circle" size={36} color={Colors.primary} />
+              <FontAwesome
+                name="user-circle"
+                size={36}
+                color={Colors.primary}
+              />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={styles.loginButton}
-              onPress={() => router.push('/auth/user-login')}
+              onPress={() => router.push("/auth/user-login")}
             >
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
@@ -62,23 +76,24 @@ const HomePage = () => {
         <View style={styles.heroSection}>
           <View style={styles.heroContent}>
             <Text style={styles.heroTitle}>
-              Plan Your{'\n'}
+              Plan Your{"\n"}
               <Text style={styles.heroHighlight}>Perfect Event</Text>
             </Text>
             <Text style={styles.heroDescription}>
-              Connect with trusted vendors for weddings, parties, corporate events, and more.
+              Connect with trusted vendors for weddings, parties, corporate
+              events, and more.
             </Text>
             <View style={styles.heroButtons}>
               {!isAuthenticated ? (
                 <>
                   <Button
                     title="Get Started"
-                    onPress={() => router.push('/auth/user-signup')}
+                    onPress={() => router.push("/auth/user-signup")}
                     size="md"
                   />
                   <Button
                     title="I'm a Vendor"
-                    onPress={() => router.push('/auth/vendor-signup')}
+                    onPress={() => router.push("/auth/vendor-signup")}
                     variant="outline"
                     size="md"
                   />
@@ -86,14 +101,16 @@ const HomePage = () => {
               ) : (
                 <Button
                   title="Explore Vendors"
-                  onPress={() => router.push('/(tabs)/explore')}
+                  onPress={() => router.push("/(tabs)/explore")}
                   size="md"
-                  icon={<FontAwesome name="search" size={16} color={Colors.white} />}
+                  icon={
+                    <FontAwesome name="search" size={16} color={Colors.white} />
+                  }
                 />
               )}
             </View>
           </View>
-          
+
           {/* Stats */}
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
@@ -121,7 +138,7 @@ const HomePage = () => {
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
-          
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -135,7 +152,7 @@ const HomePage = () => {
               >
                 <View style={styles.categoryIcon}>
                   <FontAwesome
-                    name={categoryIcons[category.title] as any || 'star'}
+                    name={(categoryIcons[category.title] as any) || "star"}
                     size={24}
                     color={Colors.primary}
                   />
@@ -154,7 +171,7 @@ const HomePage = () => {
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
-          
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -164,7 +181,11 @@ const HomePage = () => {
               <Card key={item} style={styles.vendorCard} noPadding>
                 <View style={styles.vendorImage}>
                   <View style={styles.vendorImagePlaceholder}>
-                    <FontAwesome name="image" size={32} color={Colors.gray300} />
+                    <FontAwesome
+                      name="image"
+                      size={32}
+                      color={Colors.gray300}
+                    />
                   </View>
                   <View style={styles.vendorBadge}>
                     <FontAwesome name="star" size={10} color={Colors.warning} />
@@ -175,7 +196,11 @@ const HomePage = () => {
                   <Text style={styles.vendorName}>Premium Studio {item}</Text>
                   <Text style={styles.vendorCategory}>Photography</Text>
                   <View style={styles.vendorLocation}>
-                    <FontAwesome name="map-marker" size={12} color={Colors.gray400} />
+                    <FontAwesome
+                      name="map-marker"
+                      size={12}
+                      color={Colors.gray400}
+                    />
                     <Text style={styles.vendorLocationText}>Kathmandu</Text>
                   </View>
                 </View>
@@ -187,7 +212,7 @@ const HomePage = () => {
         {/* How It Works Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>How It Works</Text>
-          
+
           <View style={styles.stepsContainer}>
             <View style={styles.stepItem}>
               <View style={styles.stepIcon}>
@@ -195,25 +220,33 @@ const HomePage = () => {
               </View>
               <Text style={styles.stepNumber}>1</Text>
               <Text style={styles.stepTitle}>Search</Text>
-              <Text style={styles.stepDescription}>Browse vendors by category</Text>
+              <Text style={styles.stepDescription}>
+                Browse vendors by category
+              </Text>
             </View>
-            
+
             <View style={styles.stepConnector} />
-            
+
             <View style={styles.stepItem}>
               <View style={styles.stepIcon}>
                 <FontAwesome name="comments" size={20} color={Colors.primary} />
               </View>
               <Text style={styles.stepNumber}>2</Text>
               <Text style={styles.stepTitle}>Connect</Text>
-              <Text style={styles.stepDescription}>Contact & discuss details</Text>
+              <Text style={styles.stepDescription}>
+                Contact & discuss details
+              </Text>
             </View>
-            
+
             <View style={styles.stepConnector} />
-            
+
             <View style={styles.stepItem}>
               <View style={styles.stepIcon}>
-                <FontAwesome name="check-circle" size={20} color={Colors.primary} />
+                <FontAwesome
+                  name="check-circle"
+                  size={20}
+                  color={Colors.primary}
+                />
               </View>
               <Text style={styles.stepNumber}>3</Text>
               <Text style={styles.stepTitle}>Book</Text>
@@ -231,7 +264,7 @@ const HomePage = () => {
             </Text>
             <Button
               title="Register as Vendor"
-              onPress={() => router.push('/auth/vendor-signup')}
+              onPress={() => router.push("/auth/vendor-signup")}
               variant="secondary"
               size="lg"
               fullWidth
@@ -274,9 +307,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.base,
   },
@@ -316,7 +349,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   heroTitle: {
-    fontSize: Typography.fontSize['4xl'],
+    fontSize: Typography.fontSize["4xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
     lineHeight: 44,
@@ -331,21 +364,21 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   heroButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.md,
     marginTop: Spacing.lg,
   },
   statsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
     backgroundColor: Colors.white,
     padding: Spacing.base,
     borderRadius: BorderRadius.md,
     ...Shadows.sm,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   statNumber: {
     fontSize: Typography.fontSize.xl,
@@ -367,9 +400,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: Spacing.base,
   },
   sectionTitle: {
@@ -386,7 +419,7 @@ const styles = StyleSheet.create({
     paddingRight: Spacing.lg,
   },
   categoryCard: {
-    alignItems: 'center',
+    alignItems: "center",
     marginRight: Spacing.base,
     width: 80,
   },
@@ -394,16 +427,16 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: BorderRadius.md,
-    backgroundColor: Colors.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing.sm,
   },
   categoryTitle: {
     fontSize: Typography.fontSize.xs,
     color: Colors.textPrimary,
     fontWeight: Typography.fontWeight.medium,
-    textAlign: 'center',
+    textAlign: "center",
   },
   featuredScroll: {
     paddingRight: Spacing.lg,
@@ -411,24 +444,24 @@ const styles = StyleSheet.create({
   vendorCard: {
     width: 200,
     marginRight: Spacing.base,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   vendorImage: {
     height: 120,
     backgroundColor: Colors.gray100,
-    position: 'relative',
+    position: "relative",
   },
   vendorImagePlaceholder: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   vendorBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: Spacing.sm,
     right: Spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.white,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
@@ -454,8 +487,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   vendorLocation: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
     marginTop: Spacing.sm,
   },
@@ -464,22 +497,22 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
   },
   stepsContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
     marginTop: Spacing.lg,
   },
   stepItem: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   stepIcon: {
     width: 48,
     height: 48,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing.sm,
   },
   stepNumber: {
@@ -496,7 +529,7 @@ const styles = StyleSheet.create({
   stepDescription: {
     fontSize: Typography.fontSize.xs,
     color: Colors.textTertiary,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 4,
   },
   stepConnector: {
@@ -506,7 +539,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   ctaSection: {
-    backgroundColor: Colors.secondary + '10',
+    backgroundColor: Colors.secondary + "10",
     marginHorizontal: Spacing.lg,
     padding: Spacing.xl,
     borderRadius: BorderRadius.lg,
@@ -516,24 +549,24 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
     color: Colors.textPrimary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.sm,
   },
   ctaDescription: {
     fontSize: Typography.fontSize.base,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.lg,
   },
   footer: {
-    alignItems: 'center',
-    paddingVertical: Spacing['2xl'],
+    alignItems: "center",
+    paddingVertical: Spacing["2xl"],
     paddingHorizontal: Spacing.lg,
     backgroundColor: Colors.gray50,
     marginTop: Spacing.lg,
   },
   footerLogo: {
-    fontSize: Typography.fontSize['2xl'],
+    fontSize: Typography.fontSize["2xl"],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.primary,
   },
@@ -543,7 +576,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   footerLinks: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.lg,
     marginTop: Spacing.lg,
     marginBottom: Spacing.base,
