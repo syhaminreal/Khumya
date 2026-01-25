@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-const HeaderSection = () => {
+export const HeaderSection = () => {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   return (
@@ -37,5 +37,3 @@ const HeaderSection = () => {
     </View>
   );
 };
-
-export default HeaderSection;

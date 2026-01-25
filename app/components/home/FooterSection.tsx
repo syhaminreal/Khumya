@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-const FooterSection = () => {
+export const FooterSection = () => {
   const navLinks = [
     { label: "About", route: "/about" },
     { label: "Contact", route: "/contact" },
@@ -27,5 +27,3 @@ const FooterSection = () => {
     </View>
   );
 };
-
-export default FooterSection;

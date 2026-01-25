@@ -4,15 +4,15 @@ import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import {
+  CategorySection,
   CTASection,
+  FeaturedVendorSection,
+  FooterSection,
+  HeaderSection,
   HeroSection,
   HowItWorksSection,
   StatsSection,
 } from "../components/home";
-import CategorySection from "../components/home/CategorySection";
-import FeaturedVendorSection from "../components/home/FeaturedVendorSection";
-import FooterSection from "../components/home/FooterSection";
-import HeaderSection from "../components/home/HeaderSection";
 
 const HomePage = () => {
   const router = useRouter();

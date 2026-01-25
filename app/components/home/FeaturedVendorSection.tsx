@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { VendorCard } from "./VendorCard";
 
-const FeaturedVendorSection = () => {
+export const FeaturedVendorSection = () => {
   const featuredVendors = [
     {
       id: 1,
@@ -71,5 +71,3 @@ const FeaturedVendorSection = () => {
     </View>
   );
 };
-
-export default FeaturedVendorSection;

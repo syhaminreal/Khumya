@@ -3,7 +3,7 @@ import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { CategoryCard } from "./CategoryCard";
 
-const CategorySection = () => {
+export const CategorySection = () => {
   const categoryIcons: Record<string, string> = {
     Photography: "camera",
     Catering: "cutlery",
@@ -37,6 +37,4 @@ const CategorySection = () => {
       </ScrollView>
     </View>
   );
-};
-
-export default CategorySection;
+}
