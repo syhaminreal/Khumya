@@ -1,7 +1,6 @@
 // Mock data for static UI - based on backend schema
 
 import { Category, User, Vendor } from "./index";
-
 // Sample categories with questions for vendors
 export const MOCK_CATEGORIES: Category[] = [
   {

@@ -6,7 +6,7 @@ import {
   Shadows,
   Spacing,
   Typography,
-} from '../../../constants/theme';
+} from "../../../constants/theme";
 
 interface CardProps {
   children: React.ReactNode;
@@ -15,6 +15,7 @@ interface CardProps {
   style?: ViewStyle;
   noPadding?: boolean;
   variant?: "default" | "outlined" | "elevated";
+  className?: string;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -24,6 +25,7 @@ const Card: React.FC<CardProps> = ({
   style,
   noPadding = false,
   variant = "default",
+  className,
 }) => {
   const getCardStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
@@ -51,8 +53,10 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
+  const appliedClassName = className ?? "bg-white";
+
   return (
-    <View style={[getCardStyle(), style]}>
+    <View style={[getCardStyle(), style]} className={appliedClassName}>
       {(title || subtitle) && (
         <View style={styles.header}>
           {title && <Text style={styles.title}>{title}</Text>}
@@ -66,7 +70,6 @@ const Card: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.white,
     borderRadius: BorderRadius.md,
   },
   header: {

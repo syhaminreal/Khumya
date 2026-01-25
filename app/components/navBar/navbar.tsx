@@ -1,40 +1,39 @@
-
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 type NavbarProps = {
-  isLoggedIn: boolean;      // controls login/logout
-  onLogout?: () => void;     // optional logout handler
+  isLoggedIn: boolean; // controls login/logout
+  onLogout?: () => void; // optional logout handler
 };
 
 const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, onLogout }) => {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <View className="flex-row justify-center items-center mt-5 gap-2.5">
       {!isLoggedIn ? (
         <>
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/login/vendor")}
+            className="bg-blue-500 py-2.5 px-4 rounded-lg"
+            onPress={() => router.push("/auth/vendor-login")}
           >
-            <Text style={styles.buttonText}>Login as Vendor</Text>
+            <Text className="text-white font-bold">Login as Vendor</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.userButton]}
-            onPress={() => router.push("/login/user")}
+            className="bg-green-500 py-2.5 px-4 rounded-lg"
+            onPress={() => router.push("/auth/user-login")}
           >
-            <Text style={styles.buttonText}>Login as User</Text>
+            <Text className="text-white font-bold">Login as User</Text>
           </TouchableOpacity>
         </>
       ) : (
         <TouchableOpacity
-          style={styles.logoutButton}
+          className="bg-red-500 py-2.5 px-6 rounded-lg"
           onPress={onLogout}
         >
-          <Text style={styles.buttonText}>Logout</Text>
+          <Text className="text-white font-bold">Logout</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -42,32 +41,3 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, onLogout }) => {
 };
 
 export default Navbar;
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-    gap: 10,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-  },
-  userButton: {
-    backgroundColor: "#34C759",
-  },
-  logoutButton: {
-    backgroundColor: "#FF3B30",
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-});
