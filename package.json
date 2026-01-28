@@ -48,5 +48,18 @@
     "tailwindcss": "^3.4.19",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "description": "A modern, minimal mobile application for connecting event organizers with vendors. Built with React Native and Expo.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syhaminreal/Khumya.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/syhaminreal/Khumya/issues"
+  },
+  "homepage": "https://github.com/syhaminreal/Khumya#readme"
 }
