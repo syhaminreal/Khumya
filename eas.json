@@ -4,7 +4,7 @@
       "developmentClient": false,
       "distribution": "internal",
       "android": {
-        "buildType": "apk" // <--- This is the key line
+        "buildType": "apk"
       }
     },
     "production": {}
