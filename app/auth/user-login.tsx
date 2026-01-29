@@ -21,10 +21,11 @@ import {
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../components/ui";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const UserLogin = () => {
   const router = useRouter();
-  const { login, loading } = useAuth();
+  const { login: authLogin, loading } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -51,10 +52,11 @@ const UserLogin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Using AuthContext login
   const handleLogin = async () => {
     if (!validateForm()) return;
 
-    const success = await login(formData.email, formData.password, false);
+    const success = await authLogin(formData.email, formData.password, false);
 
     if (success) {
       router.replace("/(tabs)");
@@ -63,6 +65,52 @@ const UserLogin = () => {
         "Login Failed",
         "Please check your credentials and try again.",
       );
+    }
+  };
+
+  // Direct API login (fallback if AuthContext isn't working)
+  const handleDirectLogin = async () => {
+    if (!validateForm()) return;
+
+    try {
+      console.log("Attempting login with:", formData);
+      
+      const response = await fetch('http://localhost:9000/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Login response:", response.status, data);
+
+      if (response.ok) {
+        // Store token and user data
+        if (data.token) {
+          await AsyncStorage.setItem('token', data.token);
+          console.log("Token stored:", data.token);
+        }
+        if (data.user) {
+          await AsyncStorage.setItem('user', JSON.stringify(data.user));
+          console.log("User data stored:", data.user);
+        }
+        
+        Alert.alert("Success", "Login successful!", [
+          { text: "OK", onPress: () => router.replace("/(tabs)") },
+        ]);
+      } else {
+        const errorMessage = data.message || data.error || `Login failed with status: ${response.status}`;
+        Alert.alert("Login Failed", errorMessage);
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      Alert.alert("Network Error", "Please check your connection and try again.");
     }
   };
 
@@ -135,6 +183,7 @@ const UserLogin = () => {
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
 
+            {/* Use AuthContext login */}
             <Button
               title="Sign In"
               onPress={handleLogin}
@@ -142,6 +191,29 @@ const UserLogin = () => {
               fullWidth
               size="lg"
             />
+
+            {/* OR: Direct API login button (uncomment if AuthContext isn't working) */}
+            {/*
+            <Button
+              title="Sign In (Direct API)"
+              onPress={handleDirectLogin}
+              loading={loading}
+              fullWidth
+              size="lg"
+              style={{ marginTop: Spacing.base, backgroundColor: Colors.secondary }}
+            />
+            */}
+
+            {/* Debug button */}
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={() => {
+                console.log("Login Form Data:", formData);
+                console.log("Errors:", errors);
+              }}
+            >
+              <Text style={styles.debugText}>Show Debug Info</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Divider */}
@@ -307,6 +379,17 @@ const styles = StyleSheet.create({
   vendorLinkBold: {
     color: Colors.secondary,
     fontWeight: Typography.fontWeight.semiBold,
+  },
+  debugButton: {
+    marginTop: Spacing.sm,
+    padding: Spacing.sm,
+    backgroundColor: Colors.gray100,
+    borderRadius: BorderRadius.sm,
+    alignItems: "center",
+  },
+  debugText: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textSecondary,
   },
 });
 

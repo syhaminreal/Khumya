@@ -1,3 +1,4 @@
+// app/auth/user-signup.tsx
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -22,20 +23,32 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../components/ui";
 
-const UserSignup = () => {
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
+  info: string;
+}
+
+const UserSignup: React.FC = () => {
   const router = useRouter();
   const { signup, loading } = useAuth();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    phone: "",
+    info: "",
   });
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
@@ -58,6 +71,10 @@ const UserSignup = () => {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
+    if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
+      newErrors.phone = "Please enter a valid 10-digit phone number";
+    }
+
     if (!agreedToTerms) {
       newErrors.terms = "You must agree to the terms and conditions";
     }
@@ -66,24 +83,36 @@ const UserSignup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignup = async () => {
+  const handleSignup = async (): Promise<void> => {
     if (!validateForm()) return;
 
-    const success = await signup(
-      {
-        email: formData.email,
+    try {
+      // Prepare the signup data
+      const signupData = {
         name: formData.name,
+        email: formData.email,
         password: formData.password,
-      },
-      false,
-    );
+        phone: formData.phone || "",
+        info: formData.info || "",
+        // role is optional and will default to "client" in the API
+      };
 
-    if (success) {
-      Alert.alert("Success", "Account created successfully!", [
-        { text: "OK", onPress: () => router.replace("/(tabs)") },
-      ]);
-    } else {
-      Alert.alert("Signup Failed", "Please try again later.");
+      // Call the signup function
+      const success = await signup(signupData);
+
+      if (success) {
+        Alert.alert("Success", "Account created successfully!", [
+          { 
+            text: "OK", 
+            onPress: () => router.replace("/(tabs)")
+          },
+        ]);
+      } else {
+        Alert.alert("Signup Failed", "Unable to create account. Please try again.");
+      }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      Alert.alert("Error", error.message || "An error occurred during signup");
     }
   };
 
@@ -151,6 +180,30 @@ const UserSignup = () => {
             />
 
             <Input
+              label="Phone Number"
+              placeholder="Enter your phone number"
+              keyboardType="phone-pad"
+              value={formData.phone}
+              onChangeText={(text) => setFormData({ ...formData, phone: text })}
+              error={errors.phone}
+              leftIcon={
+                <FontAwesome name="phone" size={18} color={Colors.gray400} />
+              }
+            />
+
+            <Input
+              label="About You (In brief)"
+              placeholder="Tell us about yourself"
+              multiline
+              numberOfLines={3}
+              value={formData.info}
+              onChangeText={(text) => setFormData({ ...formData, info: text })}
+              leftIcon={
+                <FontAwesome name="info-circle" size={18} color={Colors.gray400} />
+              }
+            />
+
+            <Input
               label="Password"
               placeholder="Create a password"
               isPassword
@@ -214,46 +267,26 @@ const UserSignup = () => {
               size="lg"
               style={{ marginTop: Spacing.base }}
             />
-          </View>
 
-          {/* Divider */}
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or sign up with</Text>
-            <View style={styles.dividerLine} />
-          </View>
+            {/* Login Link */}
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => router.push("/auth/user-login")}>
+                <Text style={styles.loginLink}>Sign In</Text>
+              </TouchableOpacity>
+            </View>
 
-          {/* Social Login */}
-          <View style={styles.socialButtons}>
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="google" size={20} color={Colors.error} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="facebook" size={20} color="#1877F2" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="apple" size={20} color={Colors.textPrimary} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Login Link */}
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.push("/auth/user-login")}>
-              <Text style={styles.loginLink}>Sign In</Text>
+            {/* Vendor Signup Link */}
+            <TouchableOpacity
+              style={styles.vendorLink}
+              onPress={() => router.push("/auth/vendor-signup")}
+            >
+              <Text style={styles.vendorLinkText}>
+                Want to offer services?{" "}
+                <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
+              </Text>
             </TouchableOpacity>
           </View>
-
-          {/* Vendor Signup Link */}
-          <TouchableOpacity
-            style={styles.vendorLink}
-            onPress={() => router.push("/auth/vendor-signup")}
-          >
-            <Text style={styles.vendorLinkText}>
-              Want to offer services?{" "}
-              <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
-            </Text>
-          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -314,6 +347,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     marginTop: Spacing.sm,
+    marginBottom: Spacing.base,
   },
   checkbox: {
     width: 20,
@@ -345,42 +379,12 @@ const styles = StyleSheet.create({
     color: Colors.error,
     marginTop: Spacing.xs,
     marginLeft: Spacing.xl,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: Spacing.lg,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.border,
-  },
-  dividerText: {
-    marginHorizontal: Spacing.md,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.textTertiary,
-  },
-  socialButtons: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: Spacing.base,
-    marginBottom: Spacing.xl,
-  },
-  socialButton: {
-    width: 56,
-    height: 56,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.white,
-    ...Shadows.sm,
+    marginBottom: Spacing.base,
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
+    marginTop: Spacing.lg,
     marginBottom: Spacing.lg,
   },
   loginText: {
