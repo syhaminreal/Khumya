@@ -83,9 +83,16 @@ const UserSignup: React.FC = () => {
       const response = await signup(signupData);
 
       if (response?.data?.success) {
-        Alert.alert("Success", "Account created successfully!", [
-          { text: "OK", onPress: () => router.replace("/(tabs)") },
-        ]);
+        Alert.alert(
+          "Success", 
+          "Account created successfully! Welcome to the community!",
+          [
+            { 
+              text: "Continue", 
+              onPress: () => router.replace("/(tabs)") // Redirects to home/tabs page
+            },
+          ]
+        );
       } else {
         const message = response?.data?.message || "Unable to create account. Please try again.";
         Alert.alert("Signup Failed", message);
@@ -224,7 +231,7 @@ const UserSignup: React.FC = () => {
     </SafeAreaView>
   );
 };
-//style here
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

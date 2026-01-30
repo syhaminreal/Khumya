@@ -52,24 +52,26 @@ const UserLogin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = async () => {
-    if (!validateForm()) return;
+ const handleLogin = async () => {
+  if (!validateForm()) return;
 
-    try {
-      const response = await login(formData);
-
-      if (response?.data?.success) {
-        router.replace("/(tabs)");
-      } else {
-        const message = response?.data?.message || "Invalid credentials";
-        Alert.alert("Login Failed", message);
-      }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      const message = error.response?.data?.message || error.message || "An unexpected error occurred.";
-      Alert.alert("Error", message);
+  try {
+    const response = await login(formData);
+console.log(response)
+    if (response?.data?.success) {
+      console.log("Login successful, navigating to /(tabs)/createEvent");
+      // Try to catch any error in the navigation
+        router.navigate("/(tabs)/profile");
+    } else {
+      const message = response?.data?.message || "Invalid credentials";
+      Alert.alert("Login Failed", message);
     }
-  };
+  } catch (error: any) {
+    console.error("Login error:", error);
+    const message = error.response?.data?.message || error.message || "An unexpected error occurred.";
+    Alert.alert("Error", message);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
