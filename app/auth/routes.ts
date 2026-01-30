@@ -33,6 +33,7 @@ export const NAVIGATION_ROUTES = {
   },
   TABS: {
     HOME: '/(tabs)',
+    INDEX: '/(tabs)/index',
     PROFILE: '/(tabs)/profile',
     EXPLORE: '/(tabs)/explore',
   },

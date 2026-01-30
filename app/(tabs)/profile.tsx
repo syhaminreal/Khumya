@@ -19,7 +19,7 @@ import {
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Card } from "../components/ui";
-import { USER_ROUTES } from "../auth/routes";
+import { USER_ROUTES, NAVIGATION_ROUTES } from "../auth/routes";
 
 const ProfilePage = () => {
   const router = useRouter();
@@ -33,7 +33,7 @@ const ProfilePage = () => {
         style: "destructive",
         onPress: () => {
           logout();
-          router.replace(USER_ROUTES.LOGIN);
+          router.replace("/(tabs)" as any);
         },
       },
     ]);
