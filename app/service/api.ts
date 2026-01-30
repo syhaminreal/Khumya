@@ -115,16 +115,18 @@ export const authAPI = {
       console.log("➡️ Signup payload:", payload);
 
       const res = await api.post("/user", payload);
-
+      console.log(res)
+console.log( " theis is res ",res.data.data)
       // Store token and user
-      if (res.data.token) await AsyncStorage.setItem("token", res.data.token);
-      if (res.data.user) await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+      if (res.data.data.token) await AsyncStorage.setItem("token", res.data.data.token);
+      if (res.data.data.user) await AsyncStorage.setItem("user", JSON.stringify(res.data.data.user));
 
       return {
         success: true,
-        message: res.data.message || "Signup successful",
-        token: res.data.token,
-        user: res.data.user,
+        message: res.data.data.message || "Signup successful",
+        token: res.data.data.token,
+        user: res.data.data.user,
+      
       };
     } catch (error: any) {
       console.error("Signup API Error:", error.response?.data || error.message);

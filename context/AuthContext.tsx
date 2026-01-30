@@ -1,5 +1,6 @@
 // context/AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Vendor, AuthState } from '../types';
 import { authAPI, SignupData, LoginData } from '../app/service/api';
 
@@ -30,10 +31,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setState((prev) => ({ ...prev, loading: true }));
     try {
       const res = await authAPI.login(data);
-      if (res.success && res.user) {
+      console.log("Login response:", res);
+      
+      if (res.success) {
+        // Get user from response or from AsyncStorage
+        const user = res.user || null;
+        
         setState({
-          user: asVendor ? null : res.user,
-          vendor: asVendor ? res.user : null,
+          user: asVendor ? null : user,
+          vendor: asVendor ? user : null,
           isAuthenticated: true,
           isVendor: asVendor,
           loading: false,
@@ -54,10 +60,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setState((prev) => ({ ...prev, loading: true }));
     try {
       const res = await authAPI.signup(data);
-      if (res.success && res.user) {
+      console.log("This is the response", res);
+      // Check for success - the API returns user data from AsyncStorage, not from response
+      if (res.success) {
+        // Get user from AsyncStorage since the backend doesn't return user in signup response
+        const storedUser = await AsyncStorage.getItem("user");
+        const user = storedUser ? JSON.parse(storedUser) : null;
+        
         setState({
-          user: asVendor ? null : res.user,
-          vendor: asVendor ? res.user : null,
+          user: asVendor ? null : user,
+          vendor: asVendor ? user : null,
           isAuthenticated: true,
           isVendor: asVendor,
           loading: false,
@@ -67,7 +79,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setState((prev) => ({ ...prev, loading: false }));
       return false;
     } catch (error) {
-      console.error('Signup Error:', error);
+      console.error("Signup Error:", error);
       setState((prev) => ({ ...prev, loading: false }));
       return false;
     }

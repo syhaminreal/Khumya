@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../components/ui";
+import { USER_ROUTES, VENDOR_ROUTES, NAVIGATION_ROUTES } from "./routes";
 
 interface FormData {
   name: string;
@@ -80,22 +81,21 @@ const UserSignup: React.FC = () => {
         role: "client", // default role
       };
 
-      const response = await signup(signupData);
+      const success = await signup(signupData);
+      console.log("Signup result:", success);
 
-      if (response?.data?.success) {
-        Alert.alert(
-          "Success", 
-          "Account created successfully! Welcome to the community!",
-          [
-            { 
-              text: "Continue", 
-              onPress: () => router.replace("/(tabs)") // Redirects to home/tabs page
-            },
-          ]
-        );
+      if (success) {
+        // Use setTimeout to ensure state is updated before navigation
+        setTimeout(() => {
+          try {
+            // Redirect to login page after successful signup
+            router.replace(USER_ROUTES.LOGIN);
+          } catch (navError) {
+            console.error("Navigation error:", navError);
+          }
+        }, 100);
       } else {
-        const message = response?.data?.message || "Unable to create account. Please try again.";
-        Alert.alert("Signup Failed", message);
+        Alert.alert("Signup Failed", "Unable to create account. Please try again.");
       }
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -214,13 +214,13 @@ const UserSignup: React.FC = () => {
             {/* Login Link */}
             <View style={styles.loginContainer}>
               <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => router.push("/auth/user-login")}>
+              <TouchableOpacity onPress={() => router.push(USER_ROUTES.LOGIN)}>
                 <Text style={styles.loginLink}>Sign In</Text>
               </TouchableOpacity>
             </View>
 
             {/* Vendor Signup Link */}
-            <TouchableOpacity style={styles.vendorLink} onPress={() => router.push("/auth/vendor-signup")}>
+            <TouchableOpacity style={styles.vendorLink} onPress={() => router.push(VENDOR_ROUTES.SIGNUP)}>
               <Text style={styles.vendorLinkText}>
                 Want to offer services? <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
               </Text>

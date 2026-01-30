@@ -20,6 +20,7 @@ import {
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../components/ui";
+import { VENDOR_ROUTES, NAVIGATION_ROUTES } from "./routes";
 
 const VendorLogin = () => {
   const router = useRouter();
@@ -53,10 +54,10 @@ const VendorLogin = () => {
   const handleLogin = async () => {
     if (!validateForm()) return;
 
-    const success = await login(formData.email, formData.password, true);
+    const success = await login(formData, true);
 
     if (success) {
-      router.replace("/(tabs)");
+      router.replace(NAVIGATION_ROUTES.TABS.HOME);
     } else {
       Alert.alert(
         "Login Failed",
@@ -150,7 +151,7 @@ const VendorLogin = () => {
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have a vendor account? </Text>
             <TouchableOpacity
-              onPress={() => router.push("/auth/vendor-signup")}
+              onPress={() => router.push(VENDOR_ROUTES.SIGNUP)}
             >
               <Text style={styles.signupLink}>Register Now</Text>
             </TouchableOpacity>
@@ -159,7 +160,7 @@ const VendorLogin = () => {
           {/* User Login Link */}
           <TouchableOpacity
             style={styles.userLink}
-            onPress={() => router.push("/auth/user-login")}
+            onPress={() => router.push(NAVIGATION_ROUTES.AUTH.USER_LOGIN)}
           >
             <Text style={styles.userLinkText}>
               Not a vendor?{" "}

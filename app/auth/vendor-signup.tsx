@@ -28,6 +28,7 @@ import {
   THEMES,
 } from "../../types/mockData";
 import { Button, Card, Input, Select, StepIndicator } from "../components/ui";
+import { VENDOR_ROUTES, USER_ROUTES, NAVIGATION_ROUTES } from "./routes";
 
 const STEPS = ["Account", "Business", "Location", "Category", "Complete"];
 
@@ -184,7 +185,7 @@ const VendorSignup = () => {
     Alert.alert(
       "Registration Complete! 🎉",
       "Your vendor account has been created successfully.",
-      [{ text: "Go to Dashboard", onPress: () => router.replace("/(tabs)") }],
+      [{ text: "Go to Dashboard", onPress: () => router.replace(NAVIGATION_ROUTES.TABS.HOME) }],
     );
   };
 

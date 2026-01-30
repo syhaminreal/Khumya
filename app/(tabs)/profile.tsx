@@ -19,6 +19,7 @@ import {
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Card } from "../components/ui";
+import { USER_ROUTES } from "../auth/routes";
 
 const ProfilePage = () => {
   const router = useRouter();
@@ -32,7 +33,7 @@ const ProfilePage = () => {
         style: "destructive",
         onPress: () => {
           logout();
-          router.replace("/(tabs)");
+          router.replace(USER_ROUTES.LOGIN);
         },
       },
     ]);
@@ -52,13 +53,13 @@ const ProfilePage = () => {
           <View style={styles.authButtons}>
             <Button
               title="Sign In"
-              onPress={() => router.push("/auth/user-login")}
+              onPress={() => router.push(USER_ROUTES.LOGIN)}
               fullWidth
               size="lg"
             />
             <Button
               title="Create Account"
-              onPress={() => router.push("/auth/user-signup")}
+              onPress={() => router.push(USER_ROUTES.SIGNUP)}
               variant="outline"
               fullWidth
               size="lg"

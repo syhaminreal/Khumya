@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { Colors } from '../../constants/theme';
+import { AUTH_ROUTES } from './routes';
 
 export default function AuthLayout() {
   return (
@@ -13,8 +14,8 @@ export default function AuthLayout() {
       <Stack.Screen name="user-login" />
       <Stack.Screen name="user-signup" />
       <Stack.Screen name="vendor-login" />
-      <Stack.Screen name="vendor-signup" /> 
-      <Stack.Screen name="user-createEvent" />
+      <Stack.Screen name="vendor-signup" />
+      <Stack.Screen name="createEvent" />
     </Stack>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../components/ui";
+import { USER_ROUTES, NAVIGATION_ROUTES } from "./routes";
 
 const UserLogin = () => {
   const router = useRouter();
@@ -52,26 +53,24 @@ const UserLogin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
- const handleLogin = async () => {
-  if (!validateForm()) return;
+  const handleLogin = async () => {
+    if (!validateForm()) return;
 
-  try {
-    const response = await login(formData);
-console.log(response)
-    if (response?.data?.success) {
-      console.log("Login successful, navigating to /(tabs)/createEvent");
-      // Try to catch any error in the navigation
-        router.navigate("/(tabs)/profile");
-    } else {
-      const message = response?.data?.message || "Invalid credentials";
-      Alert.alert("Login Failed", message);
+    try {
+      const success = await login(formData);
+
+      if (success) {
+        console.log("Login successful, navigating to /(tabs)/profile");
+        router.replace(NAVIGATION_ROUTES.TABS.PROFILE);
+      } else {
+        Alert.alert("Login Failed", "Invalid credentials");
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const message = error.response?.data?.message || error.message || "An unexpected error occurred.";
+      Alert.alert("Error", message);
     }
-  } catch (error: any) {
-    console.error("Login error:", error);
-    const message = error.response?.data?.message || error.message || "An unexpected error occurred.";
-    Alert.alert("Error", message);
-  }
-};
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
@@ -167,7 +166,7 @@ console.log(response)
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
             <TouchableOpacity
-              onPress={() => router.push("/auth/user-signup")}
+              onPress={() => router.push(USER_ROUTES.SIGNUP)}
             >
               <Text style={styles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
