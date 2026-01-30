@@ -42,6 +42,26 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
+        name="invite"
+        options={{
+          title: 'Invite',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="user-plus" color={color} size={20} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="vendor-profile"
+        options={{
+          title: 'Vendor',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="briefcase" color={color} size={20} />
+          ),
+          // Hide this tab by default, can be shown based on user role
+          tabBarStyle: { display: 'none' },
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',

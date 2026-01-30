@@ -1,7 +1,7 @@
 // context/AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, Vendor, AuthState } from '../types';
+import { User, Vendor, AuthState, EventInvitation } from '../types';
 import { authAPI, SignupData, LoginData } from '../app/service/api';
 
 interface AuthContextType extends AuthState {
@@ -11,6 +11,9 @@ interface AuthContextType extends AuthState {
   updateUser: (user: Partial<User>) => void;
   updateVendor: (vendor: Partial<Vendor>) => void;
   setVendorProfile: (vendor: Vendor) => void;
+  fetchInvitedEvents: () => Promise<void>;
+  acceptEventInvite: (eventId: number) => Promise<void>;
+  declineEventInvite: (eventId: number) => Promise<void>;
 }
 
 const defaultAuthState: AuthState = {
@@ -18,6 +21,8 @@ const defaultAuthState: AuthState = {
   vendor: null,
   isAuthenticated: false,
   isVendor: false,
+  isGuest: false,
+  invitedEvents: [],
   loading: false,
 };
 
@@ -42,6 +47,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           vendor: asVendor ? user : null,
           isAuthenticated: true,
           isVendor: asVendor,
+          isGuest: false,
+          invitedEvents: [],
           loading: false,
         });
         return true;
@@ -72,6 +79,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           vendor: asVendor ? user : null,
           isAuthenticated: true,
           isVendor: asVendor,
+          isGuest: false,
+          invitedEvents: [],
           loading: false,
         });
         return true;
@@ -114,6 +123,66 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setState((prev) => ({ ...prev, vendor }));
   };
 
+  // ---------------- FETCH INVITED EVENTS ----------------
+  const fetchInvitedEvents = async () => {
+    try {
+      // Simulated API call - replace with actual API
+      // In real implementation, this would call an endpoint like /api/events/invitations
+      const mockInvitations: EventInvitation[] = [
+        {
+          eventId: 1,
+          eventTitle: "Smith-Johnson Wedding",
+          eventDate: "2026-06-15T14:00:00Z",
+          eventLocation: "Grand Oak Gardens, California",
+          organizerName: "John Smith",
+          status: "pending",
+        },
+      ];
+      
+      setState((prev) => ({
+        ...prev,
+        isGuest: mockInvitations.length > 0,
+        invitedEvents: mockInvitations,
+      }));
+    } catch (error) {
+      console.error("Error fetching invited events:", error);
+    }
+  };
+
+  // ---------------- ACCEPT EVENT INVITE ----------------
+  const acceptEventInvite = async (eventId: number) => {
+    try {
+      // Simulated API call - replace with actual API
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      setState((prev) => ({
+        ...prev,
+        invitedEvents: prev.invitedEvents.map((inv) =>
+          inv.eventId === eventId ? { ...inv, status: "accepted" } : inv
+        ),
+      }));
+    } catch (error) {
+      console.error("Error accepting invite:", error);
+    }
+  };
+
+  // ---------------- DECLINE EVENT INVITE ----------------
+  const declineEventInvite = async (eventId: number) => {
+    try {
+      // Simulated API call - replace with actual API
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      setState((prev) => ({
+        ...prev,
+        invitedEvents: prev.invitedEvents.map((inv) =>
+          inv.eventId === eventId ? { ...inv, status: "declined" } : inv
+        ),
+      }));
+    } catch (error) {
+      console.error("Error declining invite:", error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -124,6 +193,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateUser,
         updateVendor,
         setVendorProfile,
+        fetchInvitedEvents,
+        acceptEventInvite,
+        declineEventInvite,
       }}
     >
       {children}

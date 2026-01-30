@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
   ScrollView,
@@ -23,7 +23,24 @@ import { USER_ROUTES, NAVIGATION_ROUTES } from "../auth/routes";
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { isAuthenticated, user, vendor, isVendor, logout } = useAuth();
+  const {
+    isAuthenticated,
+    user,
+    vendor,
+    isVendor,
+    isGuest,
+    invitedEvents,
+    logout,
+    fetchInvitedEvents,
+    acceptEventInvite,
+    declineEventInvite,
+  } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchInvitedEvents();
+    }
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -107,6 +124,131 @@ const ProfilePage = () => {
             </Text>
           </View>
         </View>
+
+        {/* Guest Event Invitations CTA */}
+        {isGuest && invitedEvents.length > 0 && (
+          <Card style={styles.guestCTACard}>
+            <View style={styles.guestCTAHeader}>
+              <View style={styles.guestCTAIcon}>
+                <FontAwesome name="calendar-check-o" size={24} color={Colors.white} />
+              </View>
+              <View style={styles.guestCTATitleContainer}>
+                <Text style={styles.guestCTATitle}>You're Invited! 🎉</Text>
+                <Text style={styles.guestCTASubtitle}>
+                  You've been invited to an event
+                </Text>
+              </View>
+            </View>
+
+            {invitedEvents
+              .filter((inv) => inv.status === "pending")
+              .map((invitation) => (
+                <View key={invitation.eventId} style={styles.invitationCard}>
+                  <View style={styles.invitationInfo}>
+                    <Text style={styles.invitationEventTitle}>
+                      {invitation.eventTitle}
+                    </Text>
+                    <View style={styles.invitationDetails}>
+                      <FontAwesome
+                        name="calendar"
+                        size={14}
+                        color={Colors.textSecondary}
+                      />
+                      <Text style={styles.invitationDetailText}>
+                        {new Date(invitation.eventDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    {invitation.eventLocation && (
+                      <View style={styles.invitationDetails}>
+                        <FontAwesome
+                          name="map-marker"
+                          size={14}
+                          color={Colors.textSecondary}
+                        />
+                        <Text style={styles.invitationDetailText}>
+                          {invitation.eventLocation}
+                        </Text>
+                      </View>
+                    )}
+                    {invitation.organizerName && (
+                      <View style={styles.invitationDetails}>
+                        <FontAwesome
+                          name="user"
+                          size={14}
+                          color={Colors.textSecondary}
+                        />
+                        <Text style={styles.invitationDetailText}>
+                          Organized by {invitation.organizerName}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.invitationActions}>
+                    <TouchableOpacity
+                      style={[styles.invitationButton, styles.acceptButton]}
+                      onPress={() => acceptEventInvite(invitation.eventId)}
+                    >
+                      <FontAwesome name="check" size={16} color={Colors.white} />
+                      <Text style={styles.invitationButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.invitationButton, styles.declineButton]}
+                      onPress={() => declineEventInvite(invitation.eventId)}
+                    >
+                      <FontAwesome name="times" size={16} color={Colors.error} />
+                      <Text
+                        style={[styles.invitationButtonText, { color: Colors.error }]}
+                      >
+                        Decline
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+
+            <View style={styles.guestCTAFooter}>
+              <Text style={styles.guestCTAFooterText}>
+                Or create your own event and invite others!
+              </Text>
+              <Button
+                title="Create Event"
+                onPress={() => router.push("/auth/createEvent")}
+                variant="secondary"
+                fullWidth
+                style={{ marginTop: Spacing.sm }}
+                icon={
+                  <FontAwesome name="plus" size={16} color={Colors.white} />
+                }
+              />
+            </View>
+          </Card>
+        )}
+
+        {/* Quick Actions for Non-Vendors */}
+        {!isVendor && (
+          <Card style={styles.quickActionsCard}>
+            <Text style={styles.quickActionsTitle}>Get Started</Text>
+            <Text style={styles.quickActionsSubtitle}>
+              Create your first event or explore vendors
+            </Text>
+            <View style={styles.quickActionsRow}>
+              <TouchableOpacity
+                style={styles.quickActionButton}
+                onPress={() => router.push("/auth/createEvent")}
+              >
+                <FontAwesome name="calendar-plus-o" size={24} color={Colors.primary} />
+                <Text style={styles.quickActionText}>Create Event</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickActionButton}
+                onPress={() => router.push("/(tabs)/explore")}
+              >
+                <FontAwesome name="search" size={24} color={Colors.secondary} />
+                <Text style={styles.quickActionText}>Explore Vendors</Text>
+              </TouchableOpacity>
+            </View>
+          </Card>
+        )}
 
         {/* Vendor Info (if vendor) */}
         {isVendor && vendor && (
@@ -212,6 +354,26 @@ const ProfilePage = () => {
                 <FontAwesome name="cog" size={18} color={Colors.primary} />
               </View>
               <Text style={styles.menuText}>Business Settings</Text>
+              <FontAwesome
+                name="chevron-right"
+                size={14}
+                color={Colors.gray400}
+              />
+            </TouchableOpacity>
+          )}
+
+          {!isVendor && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => router.push("/auth/vendor-signup")}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: Colors.secondary + "15" }]}>
+                <FontAwesome name="briefcase" size={18} color={Colors.secondary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuText}>Become a Vendor</Text>
+                <Text style={styles.menuSubtext}>Start offering your services</Text>
+              </View>
               <FontAwesome
                 name="chevron-right"
                 size={14}
@@ -439,6 +601,11 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     color: Colors.textPrimary,
   },
+  menuSubtext: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textTertiary,
+    marginTop: 2,
+  },
   logoutSection: {
     marginTop: Spacing.xl,
     marginHorizontal: Spacing.lg,
@@ -449,5 +616,144 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     marginTop: Spacing.lg,
     marginBottom: Spacing["2xl"],
+  },
+  
+  // Guest CTA Styles
+  guestCTACard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    backgroundColor: Colors.primary + "08",
+    borderWidth: 1,
+    borderColor: Colors.primary + "30",
+  },
+  guestCTAHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Spacing.md,
+  },
+  guestCTAIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.md,
+  },
+  guestCTATitleContainer: {
+    flex: 1,
+  },
+  guestCTATitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.textPrimary,
+  },
+  guestCTASubtitle: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+  },
+  guestCTAFooter: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  guestCTAFooterText: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    textAlign: "center",
+    marginBottom: Spacing.sm,
+  },
+  
+  // Invitation Card Styles
+  invitationCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.base,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    ...Shadows.sm,
+  },
+  invitationInfo: {
+    marginBottom: Spacing.md,
+  },
+  invitationEventTitle: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semiBold,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  invitationDetails: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 4,
+  },
+  invitationDetailText: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+  },
+  invitationActions: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+  },
+  invitationButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.base,
+    gap: 6,
+  },
+  acceptButton: {
+    backgroundColor: Colors.success,
+  },
+  declineButton: {
+    backgroundColor: Colors.error + "15",
+    borderWidth: 1,
+    borderColor: Colors.error,
+  },
+  invitationButtonText: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.white,
+  },
+  
+  // Quick Actions Styles
+  quickActionsCard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+  },
+  quickActionsTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.bold,
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  quickActionsSubtitle: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+  },
+  quickActionsRow: {
+    flexDirection: "row",
+    gap: Spacing.md,
+  },
+  quickActionButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.base,
+    ...Shadows.sm,
+  },
+  quickActionText: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.textPrimary,
+    marginTop: Spacing.xs,
+    textAlign: "center",
   },
 });

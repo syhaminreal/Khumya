@@ -94,6 +94,8 @@ export interface AuthState {
   vendor: Vendor | null;
   isAuthenticated: boolean;
   isVendor: boolean;
+  isGuest: boolean;
+  invitedEvents: EventInvitation[];
   loading: boolean;
 }
 
@@ -109,4 +111,42 @@ export interface ApiResponse<T> {
 export interface ValidationError {
   field: string;
   message: string;
+}
+
+// Event types - matches event table
+export interface Event {
+  id: number;
+  title: string;
+  description?: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  location?: string;
+  organizer?: number;
+  budget?: number;
+  theme?: string;
+  parentId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Guest types - matches user_event table
+export interface Guest {
+  id: number;
+  userId: number;
+  eventId: number;
+  role?: string;
+  status?: 'pending' | 'accepted' | 'declined';
+  user?: User;
+  event?: Event;
+}
+
+// Invitation/Event notification
+export interface EventInvitation {
+  eventId: number;
+  eventTitle: string;
+  eventDate: string;
+  eventLocation?: string;
+  organizerName?: string;
+  status: 'pending' | 'accepted' | 'declined';
 }

@@ -57,7 +57,7 @@ const VendorLogin = () => {
     const success = await login(formData, true);
 
     if (success) {
-      router.replace(NAVIGATION_ROUTES.TABS.HOME);
+      router.replace(NAVIGATION_ROUTES.TABS.VENDOR_PROFILE);
     } else {
       Alert.alert(
         "Login Failed",

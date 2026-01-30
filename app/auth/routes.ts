@@ -35,6 +35,8 @@ export const NAVIGATION_ROUTES = {
     HOME: '/(tabs)',
     INDEX: '/(tabs)/index',
     PROFILE: '/(tabs)/profile',
+    VENDOR_PROFILE: '/(tabs)/vendor-profile',
     EXPLORE: '/(tabs)/explore',
+    INVITE: '/(tabs)/invite',
   },
 } as const;
