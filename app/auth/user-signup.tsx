@@ -13,13 +13,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  BorderRadius,
-  Colors,
-  Shadows,
-  Spacing,
-  Typography,
-} from "../../constants/theme";
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
 import { Button, Input } from "../components/ui";
 
@@ -44,75 +38,62 @@ const UserSignup: React.FC = () => {
     phone: "",
     info: "",
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Please enter a valid email";
 
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
 
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
-    }
 
-    if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
+    if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/\D/g, "")))
       newErrors.phone = "Please enter a valid 10-digit phone number";
-    }
 
-    if (!agreedToTerms) {
-      newErrors.terms = "You must agree to the terms and conditions";
-    }
+    if (!agreedToTerms) newErrors.terms = "You must agree to the terms and conditions";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignup = async (): Promise<void> => {
-    if (!validateForm()) return;
+  const handleSignup = async () => {
+    if (!validateForm()) {
+      Alert.alert("Invalid Input", "Please fill all required fields correctly.");
+      return;
+    }
 
     try {
-      // Prepare the signup data
       const signupData = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone || "",
         info: formData.info || "",
-        // role is optional and will default to "client" in the API
+        role: "client", // default role
       };
 
-      // Call the signup function
-      const success = await signup(signupData);
+      const response = await signup(signupData);
 
-      if (success) {
+      if (response?.data?.success) {
         Alert.alert("Success", "Account created successfully!", [
-          { 
-            text: "OK", 
-            onPress: () => router.replace("/(tabs)")
-          },
+          { text: "OK", onPress: () => router.replace("/(tabs)") },
         ]);
       } else {
-        Alert.alert("Signup Failed", "Unable to create account. Please try again.");
+        const message = response?.data?.message || "Unable to create account. Please try again.";
+        Alert.alert("Signup Failed", message);
       }
     } catch (error: any) {
       console.error("Signup error:", error);
-      Alert.alert("Error", error.message || "An error occurred during signup");
+      const message = error.response?.data?.message || error.message || "An unexpected error occurred.";
+      Alert.alert("Error", message);
     }
   };
 
@@ -128,15 +109,8 @@ const UserSignup: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <FontAwesome
-              name="arrow-left"
-              size={20}
-              color={Colors.textPrimary}
-            />
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <FontAwesome name="arrow-left" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           {/* Header */}
@@ -145,9 +119,7 @@ const UserSignup: React.FC = () => {
               <FontAwesome name="user-plus" size={28} color={Colors.primary} />
             </View>
             <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>
-              Join us to discover amazing events
-            </Text>
+            <Text style={styles.subtitle}>Join us to discover amazing events</Text>
           </View>
 
           {/* Form */}
@@ -159,9 +131,7 @@ const UserSignup: React.FC = () => {
               value={formData.name}
               onChangeText={(text) => setFormData({ ...formData, name: text })}
               error={errors.name}
-              leftIcon={
-                <FontAwesome name="user" size={18} color={Colors.gray400} />
-              }
+              leftIcon={<FontAwesome name="user" size={18} color={Colors.gray400} />}
               required
             />
 
@@ -173,9 +143,7 @@ const UserSignup: React.FC = () => {
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
               error={errors.email}
-              leftIcon={
-                <FontAwesome name="envelope" size={18} color={Colors.gray400} />
-              }
+              leftIcon={<FontAwesome name="envelope" size={18} color={Colors.gray400} />}
               required
             />
 
@@ -186,9 +154,7 @@ const UserSignup: React.FC = () => {
               value={formData.phone}
               onChangeText={(text) => setFormData({ ...formData, phone: text })}
               error={errors.phone}
-              leftIcon={
-                <FontAwesome name="phone" size={18} color={Colors.gray400} />
-              }
+              leftIcon={<FontAwesome name="phone" size={18} color={Colors.gray400} />}
             />
 
             <Input
@@ -198,9 +164,7 @@ const UserSignup: React.FC = () => {
               numberOfLines={3}
               value={formData.info}
               onChangeText={(text) => setFormData({ ...formData, info: text })}
-              leftIcon={
-                <FontAwesome name="info-circle" size={18} color={Colors.gray400} />
-              }
+              leftIcon={<FontAwesome name="info-circle" size={18} color={Colors.gray400} />}
             />
 
             <Input
@@ -208,14 +172,10 @@ const UserSignup: React.FC = () => {
               placeholder="Create a password"
               isPassword
               value={formData.password}
-              onChangeText={(text) =>
-                setFormData({ ...formData, password: text })
-              }
+              onChangeText={(text) => setFormData({ ...formData, password: text })}
               error={errors.password}
               hint="Must be at least 6 characters"
-              leftIcon={
-                <FontAwesome name="lock" size={20} color={Colors.gray400} />
-              }
+              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
               required
             />
 
@@ -224,49 +184,25 @@ const UserSignup: React.FC = () => {
               placeholder="Confirm your password"
               isPassword
               value={formData.confirmPassword}
-              onChangeText={(text) =>
-                setFormData({ ...formData, confirmPassword: text })
-              }
+              onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
               error={errors.confirmPassword}
-              leftIcon={
-                <FontAwesome name="lock" size={20} color={Colors.gray400} />
-              }
+              leftIcon={<FontAwesome name="lock" size={20} color={Colors.gray400} />}
               required
             />
 
             {/* Terms Agreement */}
-            <TouchableOpacity
-              style={styles.termsContainer}
-              onPress={() => setAgreedToTerms(!agreedToTerms)}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  agreedToTerms && styles.checkboxChecked,
-                ]}
-              >
-                {agreedToTerms && (
-                  <FontAwesome name="check" size={12} color={Colors.white} />
-                )}
+            <TouchableOpacity style={styles.termsContainer} onPress={() => setAgreedToTerms(!agreedToTerms)}>
+              <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+                {agreedToTerms && <FontAwesome name="check" size={12} color={Colors.white} />}
               </View>
               <Text style={styles.termsText}>
-                I agree to the{" "}
-                <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
+                I agree to the <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
                 <Text style={styles.termsLink}>Privacy Policy</Text>
               </Text>
             </TouchableOpacity>
-            {errors.terms && (
-              <Text style={styles.errorText}>{errors.terms}</Text>
-            )}
+            {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
 
-            <Button
-              title="Create Account"
-              onPress={handleSignup}
-              loading={loading}
-              fullWidth
-              size="lg"
-              style={{ marginTop: Spacing.base }}
-            />
+            <Button title="Create Account" onPress={handleSignup} loading={loading} fullWidth size="lg" style={{ marginTop: Spacing.base }} />
 
             {/* Login Link */}
             <View style={styles.loginContainer}>
@@ -277,13 +213,9 @@ const UserSignup: React.FC = () => {
             </View>
 
             {/* Vendor Signup Link */}
-            <TouchableOpacity
-              style={styles.vendorLink}
-              onPress={() => router.push("/auth/vendor-signup")}
-            >
+            <TouchableOpacity style={styles.vendorLink} onPress={() => router.push("/auth/vendor-signup")}>
               <Text style={styles.vendorLinkText}>
-                Want to offer services?{" "}
-                <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
+                Want to offer services? <Text style={styles.vendorLinkBold}>Register as Vendor</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -292,7 +224,7 @@ const UserSignup: React.FC = () => {
     </SafeAreaView>
   );
 };
-
+//style here
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,11 +1,12 @@
+// context/AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User, Vendor, AuthState } from '../types';
-import { MOCK_USER, MOCK_VENDOR } from '../types/mockData';
+import { authAPI, SignupData, LoginData } from '../app/service/api';
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string, asVendor?: boolean) => Promise<boolean>;
-  signup: (data: { email: string; name: string; password: string }, asVendor?: boolean) => Promise<boolean>;
-  logout: () => void;
+  login: (data: LoginData, asVendor?: boolean) => Promise<boolean>;
+  signup: (data: SignupData, asVendor?: boolean) => Promise<boolean>;
+  logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
   updateVendor: (vendor: Partial<Vendor>) => void;
   setVendorProfile: (vendor: Vendor) => void;
@@ -24,76 +25,64 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AuthState>(defaultAuthState);
 
-  // Mock login - replace with actual API call later
-  const login = async (email: string, password: string, asVendor: boolean = false): Promise<boolean> => {
-    setState((prev: AuthState) => ({ ...prev, loading: true }));
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Mock successful login
-    if (email && password) {
-      const mockUser: User = {
-        ...MOCK_USER,
-        email,
-        role: asVendor ? 'vendor' : 'client',
-      };
-
-      setState({
-        user: mockUser,
-        vendor: asVendor ? MOCK_VENDOR : null,
-        isAuthenticated: true,
-        isVendor: asVendor,
-        loading: false,
-      });
-      return true;
+  // ---------------- LOGIN ----------------
+  const login = async (data: LoginData, asVendor: boolean = false): Promise<boolean> => {
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await authAPI.login(data);
+      if (res.success && res.user) {
+        setState({
+          user: asVendor ? null : res.user,
+          vendor: asVendor ? res.user : null,
+          isAuthenticated: true,
+          isVendor: asVendor,
+          loading: false,
+        });
+        return true;
+      }
+      setState((prev) => ({ ...prev, loading: false }));
+      return false;
+    } catch (error) {
+      console.error('Login Error:', error);
+      setState((prev) => ({ ...prev, loading: false }));
+      return false;
     }
-
-    setState((prev: AuthState) => ({ ...prev, loading: false }));
-    return false;
   };
 
-  // Mock signup - replace with actual API call later
-  const signup = async (
-    data: { email: string; name: string; password: string },
-    asVendor: boolean = false
-  ): Promise<boolean> => {
-    setState((prev: AuthState) => ({ ...prev, loading: true }));
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Mock successful signup
-    if (data.email && data.name && data.password) {
-      const newUser: User = {
-        id: Date.now(),
-        email: data.email,
-        name: data.name,
-        role: asVendor ? 'vendor' : 'client',
-        createdAt: new Date().toISOString(),
-      };
-
-      setState({
-        user: newUser,
-        vendor: null, // Vendor profile needs to be set separately
-        isAuthenticated: true,
-        isVendor: asVendor,
-        loading: false,
-      });
-      return true;
+  // ---------------- SIGNUP ----------------
+  const signup = async (data: SignupData, asVendor: boolean = false): Promise<boolean> => {
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await authAPI.signup(data);
+      if (res.success && res.user) {
+        setState({
+          user: asVendor ? null : res.user,
+          vendor: asVendor ? res.user : null,
+          isAuthenticated: true,
+          isVendor: asVendor,
+          loading: false,
+        });
+        return true;
+      }
+      setState((prev) => ({ ...prev, loading: false }));
+      return false;
+    } catch (error) {
+      console.error('Signup Error:', error);
+      setState((prev) => ({ ...prev, loading: false }));
+      return false;
     }
-
-    setState((prev: AuthState) => ({ ...prev, loading: false }));
-    return false;
   };
 
-  const logout = () => {
+  // ---------------- LOGOUT ----------------
+  const logout = async () => {
+    await authAPI.logout();
     setState(defaultAuthState);
   };
 
+  // ---------------- UPDATE USER ----------------
   const updateUser = (userData: Partial<User>) => {
     if (state.user) {
-      setState((prev: AuthState) => ({
+      setState((prev) => ({
         ...prev,
         user: { ...prev.user!, ...userData },
       }));
@@ -102,7 +91,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateVendor = (vendorData: Partial<Vendor>) => {
     if (state.vendor) {
-      setState((prev: AuthState) => ({
+      setState((prev) => ({
         ...prev,
         vendor: { ...prev.vendor!, ...vendorData },
       }));
@@ -110,10 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const setVendorProfile = (vendor: Vendor) => {
-    setState((prev: AuthState) => ({
-      ...prev,
-      vendor,
-    }));
+    setState((prev) => ({ ...prev, vendor }));
   };
 
   return (

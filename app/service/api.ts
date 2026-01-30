@@ -1,49 +1,85 @@
 // services/api.ts
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_BASE_URL = 'http://localhost:9000/api';
+/* -------------------------------------------------------------------------- */
+/*                              BASE URL SETUP                                */
+/* -------------------------------------------------------------------------- */
+
+const API_BASE_URL =
+  Platform.OS === "web"
+    ? "http://localhost:9000/api"
+    : "http://10.0.2.2:9000/api"; // Android emulator, use your LAN IP if needed
+
+/* -------------------------------------------------------------------------- */
+/*                              AXIOS INSTANCE                                */
+/* -------------------------------------------------------------------------- */
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  timeout: 10000, // 10 second timeout
+  timeout: 10000,
 });
 
-// Request interceptor
+/* -------------------------------------------------------------------------- */
+/*                           REQUEST INTERCEPTOR                               */
+/* -------------------------------------------------------------------------- */
+
 api.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem("token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // 🔍 DEBUG LOG
+    console.log("📡 AXIOS REQUEST:", {
+      method: config.method,
+      url: `${config.baseURL}${config.url}`,
+      data: config.data,
+    });
+
     return config;
   },
-  (error) => {
+  (error) => Promise.reject(error)
+);
+
+/* -------------------------------------------------------------------------- */
+/*                           RESPONSE INTERCEPTOR                              */
+/* -------------------------------------------------------------------------- */
+
+api.interceptors.response.use(
+  (response) => {
+    console.log("✅ AXIOS RESPONSE:", response.data);
+    return response;
+  },
+  async (error) => {
+    console.error("❌ AXIOS ERROR:", error.response?.data || error.message);
+
+    // Auto logout on 401
+    if (error.response?.status === 401) {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("user");
+    }
+
     return Promise.reject(error);
   }
 );
 
-// Response interceptor
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('user');
-    }
-    return Promise.reject(error);
-  }
-);
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
 
 export interface AuthResponse {
+  success: boolean;
   message?: string;
   token?: string;
   user?: any;
   error?: string;
-  success: boolean;
 }
 
 export interface SignupData {
@@ -60,106 +96,85 @@ export interface LoginData {
   password: string;
 }
 
-export interface ApiError {
-  message: string;
-  error?: string;
-  statusCode?: number;
-}
+/* -------------------------------------------------------------------------- */
+/*                                AUTH API                                    */
+/* -------------------------------------------------------------------------- */
 
 export const authAPI = {
   signup: async (data: SignupData): Promise<AuthResponse> => {
     try {
-      const userData = {
-        email: data.email,
+      const payload = {
         name: data.name,
+        email: data.email,
         password: data.password,
-        phone: data.phone || "9874563210",
-        info: data.info || "sdsdfdsf",
-        role: data.role || "client"
+        phone: data.phone || "",
+        info: data.info || "",
+        role: data.role || "client",
       };
 
-      console.log('Sending signup data:', userData);
-      
-      const response = await api.post('/user', userData);
-      console.log('Signup response:', response.data);
-      
-      if (response.data.token) {
-        await AsyncStorage.setItem('token', response.data.token);
-      }
-      if (response.data.user) {
-        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
-      }
-      
+      console.log("➡️ Signup payload:", payload);
+
+      const res = await api.post("/user", payload);
+
+      // Store token and user
+      if (res.data.token) await AsyncStorage.setItem("token", res.data.token);
+      if (res.data.user) await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+
       return {
         success: true,
-        message: response.data.message || 'Signup successful',
-        ...response.data
+        message: res.data.message || "Signup successful",
+        token: res.data.token,
+        user: res.data.user,
       };
     } catch (error: any) {
-      console.error('Signup error:', error.response?.data || error.message);
-      
-      if (error.response?.data) {
-        return {
-          success: false,
-          message: error.response.data.message || error.response.data.error || 'Signup failed',
-          error: error.response.data.error
-        };
-      }
-      
+      console.error("Signup API Error:", error.response?.data || error.message);
       return {
         success: false,
-        message: 'Network error. Please check your connection.',
-        error: error.message
+        message: error.response?.data?.message || error.response?.data?.error || "Signup failed",
+        error: error.message,
       };
     }
   },
 
   login: async (data: LoginData): Promise<AuthResponse> => {
     try {
-      console.log('Sending login data:', data);
-      
-      const response = await api.post('/user/login', data);
-      console.log('Login response:', response.data);
-      
-      if (response.data.token) {
-        await AsyncStorage.setItem('token', response.data.token);
-      }
-      if (response.data.user) {
-        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
-      }
-      
+      console.log("➡️ Login payload:", data);
+
+      const res = await api.post("/user/login", data);
+
+      // Store token and user
+      if (res.data.token) await AsyncStorage.setItem("token", res.data.token);
+      if (res.data.user) await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+
       return {
         success: true,
-        message: response.data.message || 'Login successful',
-        ...response.data
+        message: res.data.message || "Login successful",
+        token: res.data.token,
+        user: res.data.user,
       };
     } catch (error: any) {
-      console.error('Login error:', error.response?.data || error.message);
-      
-      if (error.response?.data) {
-        return {
-          success: false,
-          message: error.response.data.message || error.response.data.error || 'Login failed',
-          error: error.response.data.error
-        };
-      }
-      
+      console.error("Login API Error:", error.response?.data || error.message);
       return {
         success: false,
-        message: 'Network error. Please check your connection.',
-        error: error.message
+        message: error.response?.data?.message || error.response?.data?.error || "Login failed",
+        error: error.message,
       };
     }
   },
 
+  logout: async (): Promise<void> => {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("user");
+  },
+
   healthCheck: async (): Promise<boolean> => {
     try {
-      await api.get('/health');
+      await api.get("/health");
       return true;
     } catch {
       return false;
     }
-  }
+  },
 };
 
 export default api;
