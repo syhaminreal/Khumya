@@ -1,7 +1,8 @@
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -12,6 +13,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import api from "../service/api";
+import { useAuth } from "../../context/AuthContext";
 import {
   BorderRadius,
   Colors,
@@ -21,15 +24,66 @@ import {
 } from "../../constants/theme";
 import { Button, Input } from "../components/ui";
 
+interface CreateEventForm {
+  title: string;
+  description: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  budget?: number;
+}
+
 const CreateEvent: React.FC = () => {
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    eventName: "",
-    eventType: "",
-    date: "",
-    location: "",
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      Alert.alert(
+        "Login Required",
+        "You need to login to create an event.",
+        [
+          {
+            text: "Login",
+            onPress: () => router.replace("/auth/user-login"),
+          },
+          {
+            text: "Cancel",
+            onPress: () => router.back(),
+          },
+        ]
+      );
+    }
+  }, [isAuthenticated, authLoading]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Checking authentication...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Don't render form if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const [formData, setFormData] = useState<CreateEventForm>({
+    title: "",
     description: "",
+    type: "",
+    startDate: "",
+    endDate: "",
+    location: "",
+    budget: undefined,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -37,16 +91,20 @@ const CreateEvent: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.eventName.trim()) {
-      newErrors.eventName = "Event name is required";
+    if (!formData.title.trim()) {
+      newErrors.title = "Event title is required";
     }
 
-    if (!formData.eventType) {
-      newErrors.eventType = "Event type is required";
+    if (!formData.type) {
+      newErrors.type = "Event type is required";
     }
 
-    if (!formData.date) {
-      newErrors.date = "Date is required";
+    if (!formData.startDate) {
+      newErrors.startDate = "Start date is required";
+    }
+
+    if (!formData.endDate) {
+      newErrors.endDate = "End date is required";
     }
 
     if (!formData.location.trim()) {
@@ -57,20 +115,48 @@ const CreateEvent: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!validateForm()) return;
 
-    // For demo, show success and navigate back
-    Alert.alert(
-      "Event Created",
-      "Your event has been created successfully!",
-      [
-        {
-          text: "OK",
-          onPress: () => router.back(),
-        },
-      ]
-    );
+    setLoading(true);
+
+    try {
+      const payload = {
+        title: formData.title,
+        description: formData.description || "",
+        type: formData.type,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        location: formData.location,
+        budget: formData.budget || 0,
+      };
+
+      console.log("➡️ Creating event:", payload);
+
+      const response = await api.post("/event", payload);
+
+      console.log("✅ Event created:", response.data);
+
+      Alert.alert(
+        "Success",
+        "Your event has been created successfully!",
+        [
+          {
+            text: "OK",
+            onPress: () => router.replace("/"),
+          },
+        ]
+      );
+    } catch (error: any) {
+      console.error("❌ Create Event Error:", error.response?.data || error.message);
+
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || error.response?.data?.error || "Failed to create event. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const eventTypes = [
@@ -108,13 +194,13 @@ const CreateEvent: React.FC = () => {
           {/* Form */}
           <View style={styles.form}>
             <Input
-              label="Event Name"
-              placeholder="Enter event name"
-              value={formData.eventName}
+              label="Event Title"
+              placeholder="Enter event title"
+              value={formData.title}
               onChangeText={(text) =>
-                setFormData({ ...formData, eventName: text })
+                setFormData({ ...formData, title: text })
               }
-              error={errors.eventName}
+              error={errors.title}
               leftIcon={
                 <FontAwesome name="calendar" size={18} color={Colors.gray400} />
               }
@@ -128,17 +214,17 @@ const CreateEvent: React.FC = () => {
                   key={type.id}
                   style={[
                     styles.eventTypeButton,
-                    formData.eventType === type.id && styles.eventTypeButtonActive,
+                    formData.type === type.id && styles.eventTypeButtonActive,
                   ]}
                   onPress={() =>
-                    setFormData({ ...formData, eventType: type.id })
+                    setFormData({ ...formData, type: type.id })
                   }
                 >
                   <FontAwesome5
                     name={type.icon as any}
                     size={18}
                     color={
-                      formData.eventType === type.id
+                      formData.type === type.id
                         ? Colors.white
                         : Colors.primary
                     }
@@ -146,7 +232,7 @@ const CreateEvent: React.FC = () => {
                   <Text
                     style={[
                       styles.eventTypeLabel,
-                      formData.eventType === type.id &&
+                      formData.type === type.id &&
                         styles.eventTypeLabelActive,
                     ]}
                   >
@@ -155,18 +241,30 @@ const CreateEvent: React.FC = () => {
                 </TouchableOpacity>
               ))}
             </View>
-            {errors.eventType && (
-              <Text style={styles.errorText}>{errors.eventType}</Text>
+            {errors.type && (
+              <Text style={styles.errorText}>{errors.type}</Text>
             )}
 
             <Input
-              label="Date"
-              placeholder="Select date"
-              value={formData.date}
-              onChangeText={(text) => setFormData({ ...formData, date: text })}
-              error={errors.date}
+              label="Start Date"
+              placeholder="Select start date"
+              value={formData.startDate}
+              onChangeText={(text) => setFormData({ ...formData, startDate: text })}
+              error={errors.startDate}
               leftIcon={
-                <FontAwesome name="calendar-o" size={18} color={Colors.gray400} />
+                <FontAwesome name="calendar" size={18} color={Colors.gray400} />
+              }
+              required
+            />
+
+            <Input
+              label="End Date"
+              placeholder="Select end date"
+              value={formData.endDate}
+              onChangeText={(text) => setFormData({ ...formData, endDate: text })}
+              error={errors.endDate}
+              leftIcon={
+                <FontAwesome name="calendar" size={18} color={Colors.gray400} />
               }
               required
             />
@@ -200,11 +298,12 @@ const CreateEvent: React.FC = () => {
             />
 
             <Button
-              title="Create Event"
+              title={loading ? "Creating..." : "Create Event"}
               onPress={handleCreateEvent}
               fullWidth
               size="lg"
               style={{ marginTop: Spacing.lg }}
+              disabled={loading}
             />
           </View>
 
@@ -234,6 +333,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: Spacing.md,
+  },
+  loadingText: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.textSecondary,
   },
   keyboardView: {
     flex: 1,
