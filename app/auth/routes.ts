@@ -15,10 +15,16 @@ export const VENDOR_ROUTES = {
   SIGNUP: '/auth/vendor-signup',
 } as const;
 
+// Guest Auth Routes
+export const GUEST_ROUTES = {
+  LOGIN: '/auth/guest-login',
+} as const;
+
 // Common Auth Routes
 export const AUTH_ROUTES = {
   USER: USER_ROUTES,
   VENDOR: VENDOR_ROUTES,
+  GUEST: GUEST_ROUTES,
   CREATE_EVENT: '/auth/createEvent',
 } as const;
 
@@ -29,6 +35,7 @@ export const NAVIGATION_ROUTES = {
     USER_SIGNUP: AUTH_ROUTES.USER.SIGNUP,
     VENDOR_LOGIN: AUTH_ROUTES.VENDOR.LOGIN,
     VENDOR_SIGNUP: AUTH_ROUTES.VENDOR.SIGNUP,
+    GUEST_LOGIN: AUTH_ROUTES.GUEST.LOGIN,
     CREATE_EVENT: AUTH_ROUTES.CREATE_EVENT,
   },
   TABS: {

@@ -35,9 +35,18 @@ const TabLayout = () => {
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: 'Search',
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="search" color={color} size={20} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="createEvent"
+        options={{
+          title: 'Create',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="plus-square" color={color} size={22} />
           ),
         }}
       />

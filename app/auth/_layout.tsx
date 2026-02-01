@@ -15,6 +15,7 @@ export default function AuthLayout() {
       <Stack.Screen name="user-signup" />
       <Stack.Screen name="vendor-login" />
       <Stack.Screen name="vendor-signup" />
+      <Stack.Screen name="guest-login" />
       <Stack.Screen name="createEvent" />
     </Stack>
   );
