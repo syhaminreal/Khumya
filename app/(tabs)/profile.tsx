@@ -18,8 +18,8 @@ import {
   Typography,
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
+import { USER_ROUTES } from "../auth/routes";
 import { Button, Card } from "../components/ui";
-import { USER_ROUTES, NAVIGATION_ROUTES } from "../auth/routes";
 
 const ProfilePage = () => {
   const router = useRouter();
