@@ -43,6 +43,7 @@ const VendorSignup = () => {
   const [accountData, setAccountData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -137,6 +138,7 @@ const VendorSignup = () => {
           email: accountData.email,
           name: accountData.name,
           password: accountData.password,
+          phone: accountData.phone,
         },
         true,
       );
@@ -158,12 +160,13 @@ const VendorSignup = () => {
   };
 
   const handleComplete = () => {
-    // Create vendor profile object
+    // Create vendor profile objecto
+    console.log('This iis completed in the module A');
     const categoryAnswers: Question[] = selectedCategoryObj
       ? selectedCategoryObj.question.map((q, idx) => ({
-          question: q.question,
-          answer: categoryData.answers[`q_${idx}`] || "",
-        }))
+        question: q.question,
+        answer: categoryData.answers[`q_${idx}`] || "",
+      }))
       : [];
 
     const vendorProfile: Vendor = {
@@ -226,6 +229,21 @@ const VendorSignup = () => {
               error={errors.email}
               leftIcon={
                 <FontAwesome name="envelope" size={18} color={Colors.gray400} />
+              }
+              required
+            />
+            <Input
+              label="Phone"
+              placeholder="Enter your phone number "
+              keyboardType="phone-pad"
+              autoCapitalize="none"
+              value={accountData.phone}
+              onChangeText={(text) =>
+                setAccountData({ ...accountData, phone: text })
+              }
+              error={errors.phone}
+              leftIcon={
+                <FontAwesome name="phone" size={18} color={Colors.gray400} />
               }
               required
             />
