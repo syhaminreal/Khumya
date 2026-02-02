@@ -98,10 +98,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ...prev,
         user: { ...prev.user!, ...userData },
       }));
+
     }
+
   };
 
-  const updateVendor = (vendorData: Vendor) => {
+  const updateVendor = (vendorData: Partial<Vendor>) => {
     if (state.vendor) {
       setState((prev) => ({
         ...prev,
