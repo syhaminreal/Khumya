@@ -262,6 +262,23 @@ export const authAPI = {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
   },
+  vendorcreate: async (data: any): Promise<any> => {
+    try {
+      const res = await api.post("/vendors", data);
+      console.log('THis is the vendor info in the api call ', res.data);
+      return res.data;
+    } catch (error: any) {
+      console.error("❌ Vendor API Error:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        code: error.code,
+        platform: Platform.OS,
+        apiUrl: API_BASE_URL,
+      });
+      return error;
+    }
+  },
 
   healthCheck: async (): Promise<boolean> => {
     try {

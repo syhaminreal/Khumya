@@ -28,9 +28,28 @@ import {
   THEMES,
 } from "../../types/mockData";
 import { Button, Card, Input, Select, StepIndicator } from "../components/ui";
-import { VENDOR_ROUTES, USER_ROUTES, NAVIGATION_ROUTES } from "./routes";
+import { NAVIGATION_ROUTES } from "./routes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STEPS = ["Account", "Business", "Location", "Category", "Complete"];
+
+// Decode JWT payload (works in React Native)
+const decodeJWT = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Failed to decode JWT:', error);
+    return null;
+  }
+};
 
 const VendorSignup = () => {
   const router = useRouter();
@@ -45,6 +64,7 @@ const VendorSignup = () => {
     email: "",
     phone: "",
     password: "",
+    owner: 0,
     confirmPassword: "",
   });
 
@@ -142,6 +162,8 @@ const VendorSignup = () => {
         },
         true,
       );
+      console.log('Thi is he success responce ', success);
+
       if (!success) {
         Alert.alert("Error", "Failed to create account. Please try again.");
         return;
@@ -159,37 +181,45 @@ const VendorSignup = () => {
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Create vendor profile objecto
-    console.log('This iis completed in the module A');
+    console.log('This is the complte hande call')
     const categoryAnswers: Question[] = selectedCategoryObj
       ? selectedCategoryObj.question.map((q, idx) => ({
         question: q.question,
         answer: categoryData.answers[`q_${idx}`] || "",
       }))
       : [];
+    const token = await AsyncStorage.getItem("token");
+    try {
+      const decoded = decodeJWT(token || "");
+      console.log('This is the token ', decoded);
 
-    const vendorProfile: Vendor = {
-      id: Date.now(),
-      vendorName: businessData.vendorName,
-      description: businessData.description,
-      owner: user?.id || 1,
-      city: locationData.city,
-      nation: locationData.nation,
-      culture: locationData.culture,
-      theme: locationData.theme,
-      space: businessData.space,
-      infos: { question: categoryAnswers },
-      createdAt: new Date().toISOString(),
-    };
+      const vendorProfile: Vendor = {
+        id: Date.now(),
+        vendorName: businessData.vendorName,
+        description: businessData.description,
+        owner: decoded?.id as number,
+        city: locationData.city,
+        nation: locationData.nation,
+        culture: locationData.culture,
+        theme: locationData.theme,
+        space: businessData.space,
+        infos: { question: categoryAnswers },
+      };
 
-    setVendorProfile(vendorProfile);
+      setVendorProfile(vendorProfile);
 
-    Alert.alert(
-      "Registration Complete! 🎉",
-      "Your vendor account has been created successfully.",
-      [{ text: "Go to Dashboard", onPress: () => router.replace(NAVIGATION_ROUTES.TABS.HOME) }],
-    );
+      Alert.alert(
+        "Registration Complete! 🎉",
+        "Your vendor account has been created successfully.",
+        [{ text: "Go to Dashboard", onPress: () => router.replace(NAVIGATION_ROUTES.TABS.HOME) }],
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to create vendor account. Please try again.");
+      console.log('This is the error ', error);
+    }
+
   };
 
   const renderStep = () => {

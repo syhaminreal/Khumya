@@ -32,11 +32,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const res = await authAPI.login(data);
       console.log("Login response:", res);
-      
+
       if (res.success) {
         // Get user from response or from AsyncStorage
         const user = res.user || null;
-        
+
         setState({
           user: asVendor ? null : user,
           vendor: asVendor ? user : null,
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Get user from AsyncStorage since the backend doesn't return user in signup response
         const storedUser = await AsyncStorage.getItem("user");
         const user = storedUser ? JSON.parse(storedUser) : null;
-        
+
         setState({
           user: asVendor ? null : user,
           vendor: asVendor ? user : null,
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateVendor = (vendorData: Partial<Vendor>) => {
+  const updateVendor = (vendorData: Vendor) => {
     if (state.vendor) {
       setState((prev) => ({
         ...prev,
@@ -110,8 +110,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const setVendorProfile = (vendor: Vendor) => {
-    setState((prev) => ({ ...prev, vendor }));
+  const setVendorProfile = async (vendor: Vendor) => {
+    try {
+      const vendorPayload = {
+        ...vendor,
+        id: undefined, // Let the backend handle this with the predefined thing in the backend 
+        createdAt: undefined
+      };
+      const authresponse = await authAPI.vendorcreate(vendorPayload);
+      console.log("✅ Vendor response:", authresponse);
+      setState((prev) => ({ ...prev, vendor })); // Update the id of the vendor and dont store the state here that was currently being updated in the ui 
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
