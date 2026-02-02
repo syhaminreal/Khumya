@@ -44,6 +44,11 @@ export const NAVIGATION_ROUTES = {
     PROFILE: '/(tabs)/profile',
     EXPLORE: '/(tabs)/explore',
   },
+  PROFILE: {
+    CHANGE_PASSWORD: '/profile/change-password',
+    NOTIFICATIONS: '/profile/notifications',
+    EDIT_PROFILE: '/profile/edit-profile',
+  },
 } as const;
 
 // Default export for expo-router compatibility

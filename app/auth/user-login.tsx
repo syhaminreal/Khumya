@@ -61,7 +61,7 @@ const UserLogin = () => {
 
       if (success) {
         console.log("Login successful, navigating to /(tabs)/profile");
-        router.replace(NAVIGATION_ROUTES.TABS.PROFILE);
+        router.replace(NAVIGATION_ROUTES.TABS.HOME);
       } else {
         Alert.alert("Login Failed", "Invalid credentials");
       }

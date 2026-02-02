@@ -1,11 +1,13 @@
-import { useAuth } from "@/context/AuthContext";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export const HeaderSection = () => {
-  const { isAuthenticated, user } = useAuth();
+  // Using Zustand store instead of useAuth context
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
   const router = useRouter();
   return (
     <View className="flex-row justify-between items-center px-4 py-2">

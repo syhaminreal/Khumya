@@ -18,7 +18,7 @@ import {
   Typography,
 } from "../../constants/theme";
 import { useAuth } from "../../context/AuthContext";
-import { USER_ROUTES } from "../auth/routes";
+import { USER_ROUTES, NAVIGATION_ROUTES } from "../auth/routes";
 import { Button, Card } from "../components/ui";
 
 const ProfilePage = () => {
@@ -170,7 +170,10 @@ const ProfilePage = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push("/profile/edit-profile" as any)}
+          >
             <View style={styles.menuIcon}>
               <FontAwesome name="user" size={18} color={Colors.primary} />
             </View>
@@ -182,7 +185,10 @@ const ProfilePage = () => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push("/profile/change-password" as any)}
+          >
             <View style={styles.menuIcon}>
               <FontAwesome name="lock" size={18} color={Colors.primary} />
             </View>
@@ -194,7 +200,10 @@ const ProfilePage = () => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push("/profile/notifications" as any)}
+          >
             <View style={styles.menuIcon}>
               <FontAwesome name="bell" size={18} color={Colors.primary} />
             </View>
