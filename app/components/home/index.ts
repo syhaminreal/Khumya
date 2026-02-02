@@ -9,3 +9,8 @@ export { HeroSection } from "./HeroSection";
 export { HowItWorksSection } from "./HowItWorksSection";
 export { StatsSection } from "./StatsSection";
 export { VendorCard } from "./VendorCard";
+
+// Default export for expo-router compatibility
+export default function HomeComponents() {
+  return null;
+}

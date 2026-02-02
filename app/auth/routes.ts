@@ -45,3 +45,8 @@ export const NAVIGATION_ROUTES = {
     EXPLORE: '/(tabs)/explore',
   },
 } as const;
+
+// Default export for expo-router compatibility
+export default function Routes() {
+  return null;
+}

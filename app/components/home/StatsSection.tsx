@@ -24,3 +24,6 @@ export const StatsSection: React.FC = () => {
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default StatsSection;

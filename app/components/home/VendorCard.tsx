@@ -49,3 +49,6 @@ export const VendorCard: React.FC<VendorCardProps> = ({
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default VendorCard;

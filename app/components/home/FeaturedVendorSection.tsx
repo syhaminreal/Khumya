@@ -71,3 +71,6 @@ export const FeaturedVendorSection = () => {
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default FeaturedVendorSection;

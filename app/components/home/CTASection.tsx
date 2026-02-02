@@ -27,3 +27,6 @@ export const CTASection: React.FC<CTASectionProps> = ({ onRegister }) => {
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default CTASection;

@@ -28,3 +28,6 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     </TouchableOpacity>
   );
 };
+
+// Default export for expo-router compatibility
+export default CategoryCard;

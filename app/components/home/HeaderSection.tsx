@@ -37,3 +37,6 @@ export const HeaderSection = () => {
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default HeaderSection;

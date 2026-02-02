@@ -56,3 +56,6 @@ export const HowItWorksSection: React.FC = () => {
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default HowItWorksSection;

@@ -39,3 +39,6 @@ export const EventInvitesCTA: React.FC<EventInvitesCTAProps> = ({
     </View>
   );
 };
+
+// Default export for expo-router compatibility
+export default EventInvitesCTA;
