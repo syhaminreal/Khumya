@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Vendor, UserRole } from '@/types';
-import { authAPI, SignupData, LoginData } from '../service/api';
+import { authAPI, vendorAPI, SignupData, LoginData, VendorProfileData } from '../service/api';
 
 interface AuthState {
   user: User | null;
@@ -20,6 +20,7 @@ interface AuthActions {
   updateUser: (userData: Partial<User>) => void;
   updateVendor: (vendorData: Partial<Vendor>) => void;
   setVendorProfile: (vendor: Vendor) => void;
+  saveVendorProfile: (data: VendorProfileData) => Promise<boolean>;
   clearError: () => void;
   initializeAuth: () => Promise<void>;
 }
@@ -37,20 +38,30 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   // Initialize auth from AsyncStorage
   initializeAuth: async () => {
+    set({ loading: true });
     try {
       const storedUser = await AsyncStorage.getItem('user');
       const token = await AsyncStorage.getItem('token');
       
       if (storedUser && token) {
         const user = JSON.parse(storedUser);
+        // Determine if user is vendor based on role field
+        const userRole = user.role || (user as any).role;
+        const isVendorUser = userRole === 'vendor';
+        
         set({
-          user,
+          user: isVendorUser ? null : user,
+          vendor: isVendorUser ? user : null,
           isAuthenticated: true,
-          isVendor: user.role === 'vendor',
+          isVendor: isVendorUser,
+          loading: false,
         });
+      } else {
+        set({ loading: false });
       }
     } catch (error) {
       console.error('Failed to initialize auth:', error);
+      set({ loading: false });
     }
   },
 
@@ -85,15 +96,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signup: async (data: SignupData, asVendor: boolean = false) => {
     set({ loading: true, error: null });
     try {
-      const res = await authAPI.signup(data);
+      const res = await authAPI.signup(data, asVendor);
       
       if (res.success) {
+        // Wait for user data to be stored and retrieved
         const storedUser = await AsyncStorage.getItem('user');
         const user = storedUser ? JSON.parse(storedUser) : null;
         
+        // Force a small delay to ensure data is properly stored
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Re-read from AsyncStorage to ensure we have the latest user data
+        const reReadUser = await AsyncStorage.getItem('user');
+        const freshUser = reReadUser ? JSON.parse(reReadUser) : user;
+        
         set({
-          user: asVendor ? null : user,
-          vendor: asVendor ? (user as unknown as Vendor) : null,
+          user: asVendor ? null : freshUser,
+          vendor: asVendor ? freshUser : null,
           isAuthenticated: true,
           isVendor: asVendor,
           loading: false,
@@ -139,9 +158,32 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
-  // Set vendor profile
+  // Set vendor profile (local state only - use saveVendorProfile for API)
   setVendorProfile: (vendor: Vendor) => {
     set({ vendor });
+  },
+
+  // Save vendor profile to backend
+  saveVendorProfile: async (data: VendorProfileData) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await vendorAPI.saveProfile(data);
+      
+      if (res.success) {
+        set({
+          vendor: res.user as unknown as Vendor,
+          loading: false,
+        });
+        return true;
+      }
+      
+      set({ loading: false, error: res.message || 'Failed to save profile' });
+      return false;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save profile';
+      set({ loading: false, error: errorMessage });
+      return false;
+    }
   },
 
   // Clear error

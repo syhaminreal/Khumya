@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
   ScrollView,
@@ -23,7 +23,12 @@ import { Button, Card } from "../components/ui";
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { isAuthenticated, user, vendor, isVendor, logout } = useAuth();
+  const { isAuthenticated, user, vendor, isVendor, logout, loading } = useAuth();
+
+  // Initialize auth on mount
+  useEffect(() => {
+    // Auth is initialized in the AuthProvider
+  }, []);
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -31,41 +36,58 @@ const ProfilePage = () => {
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => {
-          logout();
+        onPress: async () => {
+          await logout();
           router.replace("/(tabs)" as any);
         },
       },
     ]);
   };
 
-  if (!isAuthenticated) {
+  // Show loading state
+  if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
         <View style={styles.notLoggedIn}>
-          <View style={styles.iconContainer}>
-            <FontAwesome name="user-circle" size={80} color={Colors.gray300} />
-          </View>
-          <Text style={styles.notLoggedInTitle}>Not Logged In</Text>
-          <Text style={styles.notLoggedInText}>
-            Sign in to access your profile and manage your account
-          </Text>
-          <View style={styles.authButtons}>
-            <Button
-              title="Sign In"
-              onPress={() => router.push(USER_ROUTES.LOGIN)}
-              fullWidth
-              size="lg"
-            />
-            <Button
-              title="Create Account"
-              onPress={() => router.push(USER_ROUTES.SIGNUP)}
-              variant="outline"
-              fullWidth
-              size="lg"
-            />
-          </View>
+          <Text style={styles.notLoggedInTitle}>Loading...</Text>
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Profile</Text>
+          </View>
+          
+          <View style={styles.notLoggedIn}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="user-circle" size={80} color={Colors.gray300} />
+            </View>
+            <Text style={styles.notLoggedInTitle}>Not Logged In</Text>
+            <Text style={styles.notLoggedInText}>
+              Sign in to access your profile and manage your account
+            </Text>
+            <View style={styles.authButtons}>
+              <Button
+                title="Sign In"
+                onPress={() => router.push(USER_ROUTES.LOGIN)}
+                fullWidth
+                size="lg"
+              />
+              <Button
+                title="Create Account"
+                onPress={() => router.push(USER_ROUTES.SIGNUP)}
+                variant="outline"
+                fullWidth
+                size="lg"
+              />
+            </View>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -216,17 +238,34 @@ const ProfilePage = () => {
           </TouchableOpacity>
 
           {isVendor && (
-            <TouchableOpacity style={styles.menuItem}>
-              <View style={styles.menuIcon}>
-                <FontAwesome name="cog" size={18} color={Colors.primary} />
-              </View>
-              <Text style={styles.menuText}>Business Settings</Text>
-              <FontAwesome
-                name="chevron-right"
-                size={14}
-                color={Colors.gray400}
-              />
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => router.push("/(tabs)/explore" as any)}
+              >
+                <View style={styles.menuIcon}>
+                  <FontAwesome name="calendar" size={18} color={Colors.secondary} />
+                </View>
+                <Text style={styles.menuText}>View Events</Text>
+                <FontAwesome
+                  name="chevron-right"
+                  size={14}
+                  color={Colors.gray400}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.menuItem}>
+                <View style={styles.menuIcon}>
+                  <FontAwesome name="cog" size={18} color={Colors.secondary} />
+                </View>
+                <Text style={styles.menuText}>Business Settings</Text>
+                <FontAwesome
+                  name="chevron-right"
+                  size={14}
+                  color={Colors.gray400}
+                />
+              </TouchableOpacity>
+            </>
           )}
         </View>
 

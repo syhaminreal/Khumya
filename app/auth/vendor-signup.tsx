@@ -18,7 +18,7 @@ import {
   Spacing,
   Typography,
 } from "../../constants/theme";
-import { useAuth } from "../../context/AuthContext";
+import { useAuthStore } from "../store";
 import { Question, Vendor } from "../../types";
 import {
   CITIES,
@@ -34,7 +34,7 @@ const STEPS = ["Account", "Business", "Location", "Category", "Complete"];
 
 const VendorSignup = () => {
   const router = useRouter();
-  const { signup, setVendorProfile, loading, user } = useAuth();
+  const { signup, setVendorProfile, saveVendorProfile, loading, user } = useAuthStore();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -157,7 +157,7 @@ const VendorSignup = () => {
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Create vendor profile object
     const categoryAnswers: Question[] = selectedCategoryObj
       ? selectedCategoryObj.question.map((q, idx) => ({
@@ -166,11 +166,32 @@ const VendorSignup = () => {
         }))
       : [];
 
+    const vendorProfileData = {
+      owner: user?.id || 0,
+      vendorName: businessData.vendorName,
+      description: businessData.description,
+      city: locationData.city,
+      nation: locationData.nation,
+      culture: locationData.culture,
+      theme: locationData.theme,
+      space: businessData.space,
+      infos: { question: categoryAnswers },
+    };
+
+    // Save vendor profile to backend
+    const success = await saveVendorProfile(vendorProfileData);
+    
+    if (!success) {
+      Alert.alert("Error", "Failed to save vendor profile. Please try again.");
+      return;
+    }
+
+    // Also update local state
     const vendorProfile: Vendor = {
       id: Date.now(),
       vendorName: businessData.vendorName,
       description: businessData.description,
-      owner: user?.id || 1,
+      owner: user?.id || 0,
       city: locationData.city,
       nation: locationData.nation,
       culture: locationData.culture,

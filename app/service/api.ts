@@ -38,67 +38,42 @@ const EXPO_PUBLIC_API_URL = (process.env.EXPO_PUBLIC_API_URL ||
   (global as any).EXPO_PUBLIC_API_URL) as string | undefined;
 
 /**
- * Try a list of candidate base URLs and set the first reachable one on `api.defaults.baseURL`.
- * This helps handle emulator vs simulator vs physical device differences.
+ * Try to detect API base URL from debuggerHost and set it on api.defaults.baseURL.
  */
 const detectAndSetBaseURL = async () => {
   try {
     if (EXPO_PUBLIC_API_URL) {
       API_BASE_URL = EXPO_PUBLIC_API_URL;
       console.log("🔧 Using EXPO_PUBLIC_API_URL:", API_BASE_URL);
-      api.defaults.baseURL = API_BASE_URL;
       return;
     }
 
-    const candidates: string[] = [];
-
-    // If running under Expo/Metro, debuggerHost often contains the machine IP (e.g. 192.168.x.x:19000)
+    // Try to detect from debuggerHost first (for Expo/Metro)
     const debuggerHost =
       (Constants.manifest as any)?.debuggerHost ||
       (Constants.manifest2?.debuggerHost as any);
     if (debuggerHost && typeof debuggerHost === "string") {
       const host = debuggerHost.split(":")[0];
-      if (host) candidates.push(`http://${host}:9000/api`);
-    }
-
-    // Common emulator hostnames
-    candidates.push("http://10.0.2.2:9000/api"); // Android emulator
-    candidates.push("http://10.0.3.2:9000/api"); // Genymotion
-    candidates.push("http://localhost:9000/api");
-
-    // Deduplicate
-    const uniqueCandidates = Array.from(new Set(candidates));
-
-    for (const base of uniqueCandidates) {
-      try {
-        // quick health check with short timeout
-        await axios.get(`${base.replace(/\/$/, "")}/health`, { timeout: 2500 });
-        API_BASE_URL = base;
-        api.defaults.baseURL = API_BASE_URL;
-        console.log("✅ Resolved API base URL:", API_BASE_URL);
-        return;
-      } catch (e) {
-        // continue
+      if (host) {
+        const candidateUrl = `http://${host}:9000/api`;
+        try {
+          await axios.get(`${candidateUrl}/health`, { timeout: 1000 });
+          API_BASE_URL = candidateUrl;
+          console.log("✅ Resolved API base URL:", API_BASE_URL);
+          return;
+        } catch (e) {
+          // Continue with platform-specific default
+        }
       }
     }
 
-    console.warn(
-      "⚠️ Could not resolve API base URL from candidates, falling back to:",
-      API_BASE_URL,
-    );
+    // Use platform-specific default
+    console.log("📡 Using platform-specific API URL:", API_BASE_URL);
   } catch (err) {
-    console.warn("⚠️ Error while detecting API base URL:", err);
+    // Fall back to default without warning
+    console.log("📡 Using default API URL:", API_BASE_URL);
   }
 };
-
-// Run detection but do not block module load. This will update axios' baseURL when complete.
-detectAndSetBaseURL();
-
-console.log("🔧 API Configuration:", {
-  apiUrl: API_BASE_URL,
-  platform: Platform.OS,
-  timestamp: new Date().toISOString(),
-});
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -106,6 +81,15 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+// Run detection after api is initialized
+detectAndSetBaseURL();
+
+console.log("🔧 API Configuration:", {
+  apiUrl: API_BASE_URL,
+  platform: Platform.OS,
+  timestamp: new Date().toISOString(),
 });
 
 api.interceptors.request.use(
@@ -164,8 +148,25 @@ export interface LoginData {
   password: string;
 }
 
+export interface VendorProfileData {
+  owner: number;
+  vendorName: string;
+  description: string;
+  city: string;
+  nation: string;
+  culture?: string;
+  theme?: string;
+  space?: string;
+  infos?: {
+    question: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
+}
+
 export const authAPI = {
-  signup: async (data: SignupData): Promise<AuthResponse> => {
+  signup: async (data: SignupData, asVendor: boolean = false): Promise<AuthResponse> => {
     try {
       const payload = {
         name: data.name,
@@ -173,7 +174,7 @@ export const authAPI = {
         password: data.password,
         phone: data.phone || "",
         info: data.info || "",
-        role: data.role || "client",
+        role: asVendor ? "vendor" : (data.role || "client"),
       };
 
       console.log("➡️ Signup payload:", payload);
@@ -182,17 +183,20 @@ export const authAPI = {
       const res = await api.post("/user", payload);
       console.log("✅ Signup response:", res.data);
 
-      // Store token and user
+      // Store token and user (backend returns user directly in res.data.data)
       if (res.data.data.token)
         await AsyncStorage.setItem("token", res.data.data.token);
-      if (res.data.data.user)
-        await AsyncStorage.setItem("user", JSON.stringify(res.data.data.user));
+      
+      // The user object is directly in res.data.data, not in res.data.data.user
+      const userData = res.data.data.user || res.data.data;
+      if (userData)
+        await AsyncStorage.setItem("user", JSON.stringify(userData));
 
       return {
         success: true,
         message: res.data.data.message || "Signup successful",
         token: res.data.data.token,
-        user: res.data.data.user,
+        user: userData,
       };
     } catch (error: any) {
       console.error("❌ Signup API Error:", {
@@ -269,6 +273,41 @@ export const authAPI = {
       return true;
     } catch {
       return false;
+    }
+  },
+};
+
+export const vendorAPI = {
+  saveProfile: async (data: VendorProfileData): Promise<AuthResponse> => {
+    try {
+      console.log("➡️ Save vendor profile payload:", data);
+      console.log("📡 API Base URL:", API_BASE_URL);
+
+      const res = await api.post("/vendors/save-profile", data);
+      console.log("✅ Save profile response:", res.data);
+
+      return {
+        success: true,
+        message: res.data.message || "Profile saved successfully",
+        user: res.data.data,
+      };
+    } catch (error: any) {
+      console.error("❌ Save Profile API Error:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        code: error.code,
+      });
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to save profile",
+        error: error.message,
+      };
     }
   },
 };

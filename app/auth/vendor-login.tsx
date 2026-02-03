@@ -18,13 +18,13 @@ import {
   Spacing,
   Typography,
 } from "../../constants/theme";
-import { useAuth } from "../../context/AuthContext";
+import { useAuthStore } from "../store";
 import { Button, Input } from "../components/ui";
 import { VENDOR_ROUTES, NAVIGATION_ROUTES } from "./routes";
 
 const VendorLogin = () => {
   const router = useRouter();
-  const { login, loading } = useAuth();
+  const { login, loading } = useAuthStore();
 
   const [formData, setFormData] = useState({
     email: "",

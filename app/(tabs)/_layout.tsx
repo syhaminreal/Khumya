@@ -2,8 +2,14 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { Colors, Typography } from '../../constants/theme';
+import { useAuth } from '../../context/AuthContext';
 
 const TabLayout = () => {
+  const { isVendor, isAuthenticated } = useAuth();
+
+  // Hide create event tab for vendors (they can only view events, not create them)
+  const showCreateTab = !isVendor && isAuthenticated;
+
   return (
     <Tabs
       screenOptions={{
@@ -41,15 +47,17 @@ const TabLayout = () => {
           ),
         }}
       />
-      <Tabs.Screen
-        name="createEvent"
-        options={{
-          title: 'Create',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="plus-square" color={color} size={22} />
-          ),
-        }}
-      />
+      {showCreateTab && (
+        <Tabs.Screen
+          name="createEvent"
+          options={{
+            title: 'Create',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome name="plus-square" color={color} size={22} />
+            ),
+          }}
+        />
+      )}
       <Tabs.Screen
         name="profile"
         options={{
